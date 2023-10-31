@@ -49,14 +49,60 @@ func Input_Barang(Barang request.Input_Barang_Request) (response.Response, error
 	return res, nil
 }
 
-func Read_Stock(kode_gudang request.Read_Jenis_Barang_Request) (response.Response, error) {
+func Read_Barang(kode_gudang request.Read_Stock_Request) (response.Response, error) {
+
+	var res response.Response
+	var Barang []response.Read_Barang_Response
+	var Detail_Barang []response.Read_Detail_Barang_Response
+
+	con := db.CreateConGorm().Table("jenis_barang")
+
+	con_barang := db.CreateConGorm().Table("stock")
+
+	err := con.Select("kode_jenis_barang", "nama_jenis_barang").Where("kode_gudang = ?", kode_gudang.Kode_gudang).Scan(&Barang).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Barang
+		return res, err
+	}
+
+	for i := 0; i < len(Barang); i++ {
+		err := con_barang.Select("kode_stock", "nama_barang", "harga_jual", "satuan").Where("kode_gudang = ? && kode_jenis_barang = ?", kode_gudang.Kode_gudang, Barang[i].Kode_jenis_barang).Scan(&Detail_Barang).Error
+
+		if err != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Barang
+			return res, err
+		}
+
+		Barang[i].Read_Detail_Barang = Detail_Barang
+	}
+
+	if Barang == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Barang
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = Barang
+	}
+
+	return res, nil
+}
+
+func Read_Stock(kode_gudang request.Read_Stock_Request) (response.Response, error) {
 
 	var res response.Response
 	var Barang []response.Read_Stock_Response
 
 	con := db.CreateConGorm().Table("stock")
 
-	err := con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Where("kode_gudang", kode_gudang.Kode_gudang).Scan(&Barang).Error
+	err := con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Where("kode_gudang = ?", kode_gudang.Kode_gudang).Scan(&Barang).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

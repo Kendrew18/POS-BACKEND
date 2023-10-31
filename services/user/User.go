@@ -35,3 +35,29 @@ func Login(user request.User_Request) (response.Response, error) {
 	return res, nil
 
 }
+
+func Change_Fifo_Lifo(status request.Status_Fifo_Lifo_Request, kode_gudang string) (response.Response, error) {
+	var res response.Response
+
+	//0=fifo
+	//1=lifo
+
+	con := db.CreateConGorm().Table("user")
+
+	err := con.Where("kode_gudang =?", kode_gudang).Update("status", status.Status)
+
+	if err.Error != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = status
+		return res, err.Error
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = map[string]int64{
+			"rows": err.RowsAffected,
+		}
+	}
+
+	return res, nil
+}

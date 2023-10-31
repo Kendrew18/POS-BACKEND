@@ -27,3 +27,31 @@ func InputStock(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func ReadBarang(c echo.Context) error {
+	var stock_req request.Read_Stock_Request
+	stock_req.Kode_gudang = c.FormValue("kode_gudang")
+
+	result, err := stock.Read_Barang(stock_req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}
+
+func ReadStock(c echo.Context) error {
+
+	var stock_req request.Read_Stock_Request
+	stock_req.Kode_gudang = c.FormValue("kode_gudang")
+
+	result, err := stock.Read_Stock(stock_req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+
+}

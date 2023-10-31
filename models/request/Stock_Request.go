@@ -10,6 +10,6 @@ type Input_Barang_Request struct {
 	Kode_gudang       string `json:"kode_gudang"`
 }
 
-type Read_Barang_Request struct {
+type Read_Stock_Request struct {
 	Kode_gudang string `json:"kode_gudang"`
 }
