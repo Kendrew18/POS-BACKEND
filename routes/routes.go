@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"POS-BACKEND/controllers/jenis_barang"
+	"POS-BACKEND/controllers/satuan_barang"
 	"POS-BACKEND/controllers/user"
 	"net/http"
 
@@ -21,6 +23,21 @@ func Init() *echo.Echo {
 
 	//user management
 	US.GET("/login", user.Login)
+
+	JB := e.Group("/JB")
+
+	//Jenis Barang
+	JB.POST("/jenis-barang", jenis_barang.InputJenisBarang)
+	JB.GET("/jenis-barang", jenis_barang.ReadJenisBarang)
+
+	SB := e.Group("/SB")
+
+	//Satuan Barang
+	SB.POST("/satuan-barang", satuan_barang.InputSatuanBarang)
+	SB.GET("/satuan-barang", satuan_barang.ReadSatuanBarang)
+
+	//Satuan Barang
+	//Stock Barang
 
 	return e
 }

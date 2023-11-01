@@ -11,14 +11,14 @@ import (
 
 func InputStock(c echo.Context) error {
 
-	var stock_req request.Input_Barang_Request
-	stock_req.Kode_jenis_barang = c.FormValue("Kode_jenis_barang")
-	stock_req.Nama_Barang = c.FormValue("nama_barang")
-	stock_req.Harga_jual, _ = strconv.ParseInt(c.FormValue("harga_jual"), 10, 64)
-	stock_req.Satuan = c.FormValue("satuan")
-	stock_req.Kode_gudang = c.FormValue("kode_gudang")
+	var Request request.Input_Barang_Request
+	Request.Kode_jenis_barang = c.FormValue("Kode_jenis_barang")
+	Request.Nama_Barang = c.FormValue("nama_barang")
+	Request.Harga_jual, _ = strconv.ParseInt(c.FormValue("harga_jual"), 10, 64)
+	Request.Satuan = c.FormValue("satuan")
+	Request.Kode_gudang = c.FormValue("kode_gudang")
 
-	result, err := stock.Input_Barang(stock_req)
+	result, err := stock.Input_Barang(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
@@ -29,10 +29,10 @@ func InputStock(c echo.Context) error {
 }
 
 func ReadBarang(c echo.Context) error {
-	var stock_req request.Read_Stock_Request
-	stock_req.Kode_gudang = c.FormValue("kode_gudang")
+	var Request request.Read_Stock_Request
+	Request.Kode_gudang = c.FormValue("kode_gudang")
 
-	result, err := stock.Read_Barang(stock_req)
+	result, err := stock.Read_Barang(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
@@ -43,10 +43,10 @@ func ReadBarang(c echo.Context) error {
 
 func ReadStock(c echo.Context) error {
 
-	var stock_req request.Read_Stock_Request
-	stock_req.Kode_gudang = c.FormValue("kode_gudang")
+	var Request request.Read_Stock_Request
+	Request.Kode_gudang = c.FormValue("kode_gudang")
 
-	result, err := stock.Read_Stock(stock_req)
+	result, err := stock.Read_Stock(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

@@ -1,4 +1,4 @@
-package satuanbarang
+package satuan_barang
 
 import (
 	"POS-BACKEND/db"
@@ -19,7 +19,7 @@ func Input_Satuan_Barang(Request request.Input_Satuan_Barang_Request) (response.
 	err := con.Select("co").Last(&co)
 
 	Request.Co = co + 1
-	Request.Kode_satuan = "S-" + strconv.Itoa(Request.Co)
+	Request.Kode_satuan = "SB-" + strconv.Itoa(Request.Co)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -46,7 +46,7 @@ func Input_Satuan_Barang(Request request.Input_Satuan_Barang_Request) (response.
 	return res, nil
 }
 
-func Show_Satuan(Request request.Read_Satuan_Barang_Request) (response.Response, error) {
+func Read_Satuan_Barang(Request request.Read_Satuan_Barang_Request) (response.Response, error) {
 
 	var res response.Response
 	var data []response.Read_Jenis_Barang_Response

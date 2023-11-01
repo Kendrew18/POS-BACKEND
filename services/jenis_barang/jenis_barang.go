@@ -1,4 +1,4 @@
-package jenisbarang
+package jenis_barang
 
 import (
 	"POS-BACKEND/db"

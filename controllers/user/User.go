@@ -10,11 +10,11 @@ import (
 )
 
 func Login(c echo.Context) error {
-	var user_req request.User_Request
-	user_req.Username = c.FormValue("username")
-	user_req.Password = c.FormValue("password")
+	var Request request.User_Request
+	Request.Username = c.FormValue("username")
+	Request.Password = c.FormValue("password")
 
-	result, err := user.Login(user_req)
+	result, err := user.Login(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
@@ -25,11 +25,11 @@ func Login(c echo.Context) error {
 
 func Change_Fifo_Lifo(c echo.Context) error {
 
-	var status_req request.Status_Fifo_Lifo_Request
-	status_req.Status, _ = strconv.Atoi(c.FormValue("status"))
+	var Request request.Status_Fifo_Lifo_Request
+	Request.Status, _ = strconv.Atoi(c.FormValue("status"))
 	Kode_gudang := c.FormValue("kode_gudang")
 
-	result, err := user.Change_Fifo_Lifo(status_req, Kode_gudang)
+	result, err := user.Change_Fifo_Lifo(Request, Kode_gudang)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
