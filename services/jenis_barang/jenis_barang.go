@@ -17,7 +17,7 @@ func Input_Jenis_Barang(jenis_barang request.Input_Jenis_Barang_Request) (respon
 
 	co := 0
 
-	err := con.Select("co").Last(&co)
+	err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	jenis_barang.Co = co + 1
 	jenis_barang.Kode_jenis_barang = "JB-" + strconv.Itoa(jenis_barang.Co)

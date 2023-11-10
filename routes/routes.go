@@ -3,6 +3,8 @@ package routes
 import (
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/satuan_barang"
+	"POS-BACKEND/controllers/stock"
+	"POS-BACKEND/controllers/supplier"
 	"POS-BACKEND/controllers/user"
 	"net/http"
 
@@ -19,25 +21,30 @@ func Init() *echo.Echo {
 		return c.String(http.StatusOK, "Project-NDL")
 	})
 
-	US := e.Group("/US")
-
 	//user management
+	US := e.Group("/US")
 	US.GET("/login", user.Login)
 
-	JB := e.Group("/JB")
-
 	//Jenis Barang
+	JB := e.Group("/JB")
 	JB.POST("/jenis-barang", jenis_barang.InputJenisBarang)
 	JB.GET("/jenis-barang", jenis_barang.ReadJenisBarang)
 
-	SB := e.Group("/SB")
-
 	//Satuan Barang
+	SB := e.Group("/SB")
 	SB.POST("/satuan-barang", satuan_barang.InputSatuanBarang)
 	SB.GET("/satuan-barang", satuan_barang.ReadSatuanBarang)
 
-	//Satuan Barang
 	//Stock Barang
+	ST := e.Group("/ST")
+	ST.POST("/stock-barang", stock.InputBarang)
+	ST.GET("/stock-barang", stock.ReadBarang)
+
+	//Supplier
+	SP := e.Group("/SP")
+	SP.POST("/supplier", supplier.InputSupplier)
+	SP.GET("/supplier", supplier.InputSupplier)
+	SP.GET("/drop-down-nama-sup", supplier.DropdownNamaSupplier)
 
 	return e
 }

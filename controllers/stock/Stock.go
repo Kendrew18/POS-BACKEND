@@ -4,18 +4,17 @@ import (
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/services/stock"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
-func InputStock(c echo.Context) error {
+func InputBarang(c echo.Context) error {
 
 	var Request request.Input_Barang_Request
-	Request.Kode_jenis_barang = c.FormValue("Kode_jenis_barang")
+	Request.Kode_jenis_barang = c.FormValue("kode_jenis_barang")
 	Request.Nama_Barang = c.FormValue("nama_barang")
-	Request.Harga_jual, _ = strconv.ParseInt(c.FormValue("harga_jual"), 10, 64)
-	Request.Satuan = c.FormValue("satuan")
+	Request.Harga_jual = c.FormValue("harga_jual")
+	Request.Kode_satuan_barang = c.FormValue("kode_satuan_barang")
 	Request.Kode_gudang = c.FormValue("kode_gudang")
 
 	result, err := stock.Input_Barang(Request)
