@@ -30,16 +30,19 @@ func Init() *echo.Echo {
 	JB := e.Group("/JB")
 	JB.POST("/jenis-barang", jenis_barang.InputJenisBarang)
 	JB.GET("/jenis-barang", jenis_barang.ReadJenisBarang)
+	JB.DELETE("/jenis-barang", jenis_barang.DeleteJenisBarang)
 
 	//Satuan Barang
 	SB := e.Group("/SB")
 	SB.POST("/satuan-barang", satuan_barang.InputSatuanBarang)
 	SB.GET("/satuan-barang", satuan_barang.ReadSatuanBarang)
+	SB.DELETE("/satuan-barang", satuan_barang.DeleteSatuanBarang)
 
 	//Stock Barang
 	ST := e.Group("/ST")
 	ST.POST("/stock-barang", stock.InputBarang)
 	ST.GET("/stock-barang", stock.ReadBarang)
+	ST.DELETE("/stock-barang", stock.DeleteBarang)
 
 	//Supplier
 	SP := e.Group("/SP")

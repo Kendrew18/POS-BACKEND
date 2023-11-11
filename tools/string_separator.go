@@ -39,7 +39,6 @@ func String_Separator_To_Int(str string) []int {
 			i++
 		}
 	}
-	fmt.Println(data, i)
 
 	return data
 }
@@ -105,7 +104,6 @@ func String_Separator_To_Int64(str string) []int64 {
 					co++
 					i++
 					tempint, _ := strconv.ParseInt(new, 10, 64)
-					fmt.Println("temp:", tempint)
 					data = append(data, tempint)
 				} else {
 					new += string(by[i])
@@ -117,7 +115,6 @@ func String_Separator_To_Int64(str string) []int64 {
 			i++
 		}
 	}
-	fmt.Println(data, i)
 
 	return data
 }

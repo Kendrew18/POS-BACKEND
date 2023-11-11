@@ -24,7 +24,6 @@ func InputBarang(c echo.Context) error {
 	}
 
 	return c.JSON(result.Status, result)
-
 }
 
 func ReadBarang(c echo.Context) error {
@@ -53,5 +52,17 @@ func ReadStock(c echo.Context) error {
 	}
 
 	return c.JSON(result.Status, result)
+}
 
+func DeleteBarang(c echo.Context) error {
+	var Request request.Delete_Barang_Request
+	Request.Kode_stock = c.FormValue("kode_stock")
+
+	result, err := stock.Delete_Barang(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
 }

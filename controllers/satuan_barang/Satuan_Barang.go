@@ -36,3 +36,17 @@ func ReadSatuanBarang(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func DeleteSatuanBarang(c echo.Context) error {
+
+	var Request request.Delete_Satuan_Barang_Request
+	Request.Kode_satuan_barang = c.FormValue("kode_satuan_barang")
+
+	result, err := satuan_barang.Delete_Satuan_Barang(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

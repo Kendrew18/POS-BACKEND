@@ -77,5 +77,41 @@ func Read_Jenis_Barang(kode_gudang request.Read_Jenis_Barang_Request) (response.
 	}
 
 	return res, nil
+}
 
+func Delete_Jenis_Barang(Request request.Delete_Jenis_Barang_Request) (response.Response, error) {
+
+	var res response.Response
+
+	var jenis_barang []string
+
+	con_masuk := db.CreateConGorm().Table("stock")
+
+	err := con_masuk.Select("kode_jenis_barang").Where("kode_jenis_barang =?", Request.Kode_jenis_barang).Scan(&jenis_barang).Error
+
+	if jenis_barang == nil && err == nil {
+		con := db.CreateConGorm().Table("jenis_barang")
+
+		err := con.Where("kode_jenis_barang=?", Request.Kode_jenis_barang).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
 }

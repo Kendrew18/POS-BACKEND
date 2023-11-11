@@ -10,3 +10,7 @@ type Input_Jenis_Barang_Request struct {
 type Read_Jenis_Barang_Request struct {
 	Kode_gudang string `json:"kode_gudang"`
 }
+
+type Delete_Jenis_Barang_Request struct {
+	Kode_jenis_barang string `json:"kode_jenis_barang"`
+}

@@ -10,3 +10,7 @@ type Input_Satuan_Barang_Request struct {
 type Read_Satuan_Barang_Request struct {
 	Kode_gudang string `json:"kode_gudang"`
 }
+
+type Delete_Satuan_Barang_Request struct {
+	Kode_satuan_barang string `json:"kode_satuan_barang"`
+}

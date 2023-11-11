@@ -126,6 +126,52 @@ func Read_Barang(Request request.Read_Stock_Request) (response.Response, error) 
 	return res, nil
 }
 
+func Delete_Barang(Request request.Delete_Barang_Request) (response.Response, error) {
+
+	var res response.Response
+	var barang_stock_masuk []string
+	var barang_stock_keluar []string
+	var barang_supplier []string
+
+	con_masuk := db.CreateConGorm().Table("barang_stock_masuk")
+
+	err := con_masuk.Select("kode_stock").Where("kode_stock =?", Request.Kode_stock).Scan(&barang_stock_masuk).Error
+
+	con_keluar := db.CreateConGorm().Table("barang_stock_keluar")
+
+	err = con_keluar.Select("kode_stock").Where("kode_stock =?", Request.Kode_stock).Scan(&barang_stock_keluar).Error
+
+	con_supplier := db.CreateConGorm().Table("barang_supplier")
+
+	err = con_supplier.Select("kode_stock").Where("kode_stock =?", Request.Kode_stock).Scan(&barang_supplier).Error
+
+	if barang_stock_masuk == nil && barang_stock_keluar == nil && barang_supplier == nil && err == nil {
+		con := db.CreateConGorm().Table("stock")
+
+		err := con.Where("kode_stock=?", Request.Kode_stock).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}
+
 func Read_Stock(Request request.Read_Stock_Request) (response.Response, error) {
 
 	var res response.Response

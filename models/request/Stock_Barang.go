@@ -23,6 +23,10 @@ type Read_Stock_Request struct {
 	Kode_jenis_barang string `json:"kode_jenis_barang"`
 }
 
+type Delete_Barang_Request struct {
+	Kode_stock string `json:"kode_stock"`
+}
+
 type Dropdown_Nama_Barang_Request struct {
 	Kode_supplier string `json:"Kode_supplier"`
 }
