@@ -130,10 +130,15 @@ func Read_Stock(Request request.Read_Stock_Request) (response.Response, error) {
 
 	var res response.Response
 	var data []response.Read_Stock_Response
+	var err error
 
 	con := db.CreateConGorm().Table("stock")
 
-	err := con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan_barang.nama_satuan_barang", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Joins("satuan_barang").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&data).Error
+	if Request.Kode_jenis_barang != "" {
+		err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan_barang.nama_satuan_barang", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Joins("satuan_barang").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&data).Error
+	} else {
+		err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan_barang.nama_satuan_barang", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Joins("satuan_barang").Where("kode_gudang = ? && kode_jenis_barang = ?", Request.Kode_gudang, Request.Kode_jenis_barang).Scan(&data).Error
+	}
 
 	if err != nil {
 		res.Status = http.StatusNotFound
@@ -184,5 +189,4 @@ func Dropdown_Nama_Barang(Request request.Dropdown_Nama_Barang_Request) (respons
 	}
 
 	return res, nil
-
 }

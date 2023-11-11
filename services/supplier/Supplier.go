@@ -51,6 +51,8 @@ func Input_Supplier(Request request.Input_Supplier_Request, Request_Barang reque
 
 		Request_Barang_Input.Co = co + 1
 		Request_Barang_Input.Kode_barang_supplier = "SPB-" + strconv.Itoa(Request_Barang_Input.Co)
+		Request_Barang_Input.Kode_supplier = Request.Kode_supplier
+		Request_Barang_Input.Kode_stock = kode_stock[i]
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -59,7 +61,7 @@ func Input_Supplier(Request request.Input_Supplier_Request, Request_Barang reque
 			return res, err.Error
 		}
 
-		err = con_brg.Select("co", "kode_barang_supplier", "kode_supplier", "kode_stock").Create(&Request_Barang)
+		err = con_brg.Select("co", "kode_barang_supplier", "kode_supplier", "kode_stock").Create(&Request_Barang_Input)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -110,7 +112,7 @@ func Read_Supplier(Request request.Read_Supplier_Request) (response.Response, er
 		var detail_data []response.Read_Barang_Supplier_Response
 		rows.Scan(&obj_data.Kode_supplier, &obj_data.Nama_supplier, &obj_data.Nomor_telpon)
 
-		err := con_barang.Select("kode_stock", "nama_barang").Joins("join stock on barang_supplier.kode_stock = stock.kode_stock").Where("kode_supplier = ?", obj_data.Kode_supplier).Scan(&detail_data).Error
+		err := con_barang.Select("barang_supplier.kode_stock", "nama_barang").Joins("join stock on barang_supplier.kode_stock = stock.kode_stock").Where("kode_supplier = ?", obj_data.Kode_supplier).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound

@@ -13,7 +13,6 @@ func InputSupplier(c echo.Context) error {
 	var Request request.Input_Supplier_Request
 	var Request_barang request.Input_Barang_Supplier_Request
 
-	Request.Kode_supplier = c.FormValue("kode_supplier")
 	Request.Nama_supplier = c.FormValue("nama_supplier")
 	Request.Nomor_telpon = c.FormValue("nomor_telpon")
 	Request.Kode_gudang = c.FormValue("kode_gudang")

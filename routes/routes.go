@@ -4,6 +4,7 @@ import (
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/satuan_barang"
 	"POS-BACKEND/controllers/stock"
+	"POS-BACKEND/controllers/stock_masuk"
 	"POS-BACKEND/controllers/supplier"
 	"POS-BACKEND/controllers/user"
 	"net/http"
@@ -43,8 +44,13 @@ func Init() *echo.Echo {
 	//Supplier
 	SP := e.Group("/SP")
 	SP.POST("/supplier", supplier.InputSupplier)
-	SP.GET("/supplier", supplier.InputSupplier)
+	SP.GET("/supplier", supplier.ReadSupplier)
 	SP.GET("/drop-down-nama-sup", supplier.DropdownNamaSupplier)
+
+	//Stock Masuk
+	SM := e.Group("/SM")
+	SM.POST("/stock-masuk", stock_masuk.InputStockMasuk)
+	SM.GET("/stock-masuk", stock_masuk.ReadStockMasuk)
 
 	return e
 }

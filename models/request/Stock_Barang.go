@@ -19,7 +19,8 @@ type Input_Barang_Request_V2 struct {
 }
 
 type Read_Stock_Request struct {
-	Kode_gudang string `json:"kode_gudang"`
+	Kode_gudang       string `json:"kode_gudang"`
+	Kode_jenis_barang string `json:"kode_jenis_barang"`
 }
 
 type Dropdown_Nama_Barang_Request struct {
