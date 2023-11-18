@@ -33,3 +33,7 @@ type Dropdown_Nama_Barang_Response struct {
 	Kode_stock  string `json:"kode_stock"`
 	Nama_barang string `json:"nama_barang"`
 }
+
+type Read_Detail_Stock_Response struct {
+	Kode_barang_keluar_masuk string `json:"kode_barang_keluar_masuk"`
+}

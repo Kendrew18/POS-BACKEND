@@ -278,3 +278,7 @@ func Dropdown_Nama_Barang(Request request.Dropdown_Nama_Barang_Request) (respons
 
 	return res, nil
 }
+
+func Detail_stock(Request request.Read_Detail_Stock) {
+
+}

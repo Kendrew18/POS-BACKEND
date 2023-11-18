@@ -14,9 +14,9 @@ func InputStockMasuk(c echo.Context) error {
 	var Request request.Input_Stock_Masuk_Request
 	var Request_barang request.Input_Barang_Stock_Masuk_Request
 
-	Request.Tanggal_masuk = c.FormValue("tanggal_stock_masuk")
+	Request.Tanggal = c.FormValue("tanggal_stock_masuk")
 	Request.Kode_nota = c.FormValue("kode_nota")
-	Request.Kode_supplier = c.FormValue("kode_supplier")
+	Request.Kode = c.FormValue("kode_supplier")
 	Request.Nama_penanggung_jawab = c.FormValue("nama_penanggung_jawab")
 	Request.Kode_gudang = c.FormValue("kode_gudang")
 

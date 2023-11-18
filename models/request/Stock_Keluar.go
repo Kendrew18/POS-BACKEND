@@ -1,13 +1,14 @@
 package request
 
 type Input_Stock_Keluar_Request struct {
-	Co                    int    `json:"co"`
-	Kode_stock_keluar     string `json:"kode_stock_keluar"`
-	Tanggal_keluar        string `json:"tanggal_keluar"`
-	Kode_nota             string `json:"kode_nota"`
-	Nama_penanggung_jawab string `json:"nama_penanggung_jawab"`
-	Kode_toko             string `json:"kode_toko"`
-	Kode_gudang           string `json:"kode_gudang"`
+	Co                      int    `json:"co"`
+	Kode_stock_keluar_masuk string `json:"kode_stock_keluar_masuk"`
+	Tanggal                 string `json:"tanggal"`
+	Kode_nota               string `json:"kode_nota"`
+	Nama_penanggung_jawab   string `json:"nama_penanggung_jawab"`
+	Kode                    string `json:"kode"`
+	Kode_gudang             string `json:"kode_gudang"`
+	Status                  int    `json:"status"`
 }
 
 type Input_Barang_Stock_Keluar_Request struct {
@@ -25,7 +26,6 @@ type Input_Barang_Stock_Keluar_V2_Request struct {
 	Jumlah_barang            float64 `json:"jumlah_barang"`
 	Harga                    int64   `json:"harga"`
 	Total_harga              int64   `json:"total_harga"`
-	Status                   int     `json:"status"`
 }
 
 type Read_Stock_Keluar_Request struct {

@@ -1,8 +1,8 @@
 package response
 
 type Read_Stock_Keluar_Response struct {
-	Kode_stock_keluar                string                              `json:"kode_stock_keluar"`
-	Tanggal_keluar                   string                              `json:"tanggal_keluar"`
+	Kode_stock_keluar_masuk          string                              `json:"kode_stock_keluar_masuk"`
+	Tanggal                          string                              `json:"tanggal"`
 	Kode_nota                        string                              `json:"kode_nota"`
 	Penanggung_jawab                 string                              `json:"penanggung_jawab"`
 	Nama_toko                        string                              `json:"nama_toko"`
