@@ -279,6 +279,53 @@ func Dropdown_Nama_Barang(Request request.Dropdown_Nama_Barang_Request) (respons
 	return res, nil
 }
 
-func Detail_stock(Request request.Read_Detail_Stock) {
+func Detail_stock(Request request.Read_Detail_Stock) (response.Response, error) {
+	var res response.Response
 
+	var data response.Read_Detail_Stock_Response
+	var arr_data []response.Read_Detail_Stock_Response
+	var rows *sql.Rows
+	var err error
+
+	con := db.CreateConGorm()
+
+	con_gudang := db.CreateConGorm().Table("gudang")
+
+	status := 0
+
+	err = con_gudang.Select("status_lifo_fifo").Where("kode_gudang=?", Request.Kode_gudang).Scan(&status).Error
+
+	if status == 0 {
+		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, tanggal, if(status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal DESC", Request.Kode_stock).Rows()
+	} else {
+		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, tanggal, if(status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal ASC", Request.Kode_stock).Rows()
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&data.Kode_barang_keluar_masuk, &data.Tanggal, &data.Keterangan, &data.Nama_barang, &data.Jumlah)
+
+		if err != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = data
+			return res, err
+		}
+
+		arr_data = append(arr_data, data)
+	}
+
+	if arr_data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = arr_data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = arr_data
+	}
+
+	return res, nil
 }

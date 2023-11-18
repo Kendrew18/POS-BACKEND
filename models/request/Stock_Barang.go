@@ -30,3 +30,8 @@ type Delete_Barang_Request struct {
 type Dropdown_Nama_Barang_Request struct {
 	Kode_supplier string `json:"Kode_supplier"`
 }
+
+type Read_Detail_Stock struct {
+	Kode_stock  string `json:"kode_stock"`
+	Kode_gudang string `json:"kode_gudang"`
+}

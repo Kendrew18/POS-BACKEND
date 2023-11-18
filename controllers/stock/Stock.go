@@ -67,3 +67,17 @@ func DeleteBarang(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func Detailstock(c echo.Context) error {
+	var Request request.Read_Detail_Stock
+	Request.Kode_stock = c.FormValue("kode_stock")
+	Request.Kode_gudang = c.FormValue("kode_gudang")
+
+	result, err := stock.Detail_stock(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

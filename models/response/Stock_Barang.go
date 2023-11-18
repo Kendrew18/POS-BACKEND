@@ -35,5 +35,9 @@ type Dropdown_Nama_Barang_Response struct {
 }
 
 type Read_Detail_Stock_Response struct {
-	Kode_barang_keluar_masuk string `json:"kode_barang_keluar_masuk"`
+	Kode_barang_keluar_masuk string  `json:"kode_barang_keluar_masuk"`
+	Tanggal                  string  `json:"tanggal"`
+	Keterangan               string  `json:"keterangan"`
+	Nama_barang              string  `json:"nama_barang"`
+	Jumlah                   float64 `json:"jumlah"`
 }

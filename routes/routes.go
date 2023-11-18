@@ -46,6 +46,7 @@ func Init() *echo.Echo {
 	ST.GET("/stock-barang", stock.ReadBarang)
 	ST.DELETE("/stock-barang", stock.DeleteBarang)
 	ST.GET("/stock", stock.ReadStock)
+	ST.GET("/detail-stock", stock.Detailstock)
 
 	//Supplier
 	SP := e.Group("/SP")

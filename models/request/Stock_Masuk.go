@@ -38,7 +38,3 @@ type Read_Stock_Masuk_Filter_Request struct {
 	Tanggal_2     string `json:"tanggal_2"`
 	Kode_supplier string `json:"kode_supplier"`
 }
-
-type Read_Detail_Stock struct {
-	Kode_stock string `json:"kode_stock"`
-}
