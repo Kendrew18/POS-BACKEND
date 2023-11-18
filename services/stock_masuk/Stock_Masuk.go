@@ -145,13 +145,13 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter r
 		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
 		date_sql2 := date2.Format("2006-01-02")
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && (tanggal >= ? && tanggal <= ?) && stock_keluar_masuk.kode = ? && status=0", Request.Kode_gudang, date_sql, date_sql2, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && (tanggal >= ? && tanggal <= ?) && stock_keluar_masuk.kode = ? && status=0", Request.Kode_gudang, date_sql, date_sql2, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 == "" && Request_filter.Kode_supplier != "" {
 		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
 		date_sql := date.Format("2006-01-02")
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && tanggal = ? && stock_keluar_masuk.kode = ? && status=0", Request.Kode_gudang, date_sql, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && tanggal = ? && stock_keluar_masuk.kode = ? && status=0", Request.Kode_gudang, date_sql, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" && Request_filter.Kode_supplier == "" {
 
@@ -161,22 +161,22 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter r
 		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
 		date_sql2 := date2.Format("2006-01-02")
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && (tanggal >= ? && tanggal <= ?) && status=0", Request.Kode_gudang, date_sql, date_sql2).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && (tanggal >= ? && tanggal <= ?) && status=0", Request.Kode_gudang, date_sql, date_sql2).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 == "" && Request_filter.Kode_supplier == "" {
 
 		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
 		date_sql := date.Format("2006-01-02")
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && tanggal = ? && status=0", Request.Kode_gudang, date_sql).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && tanggal = ? && status=0", Request.Kode_gudang, date_sql).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	} else if Request_filter.Kode_supplier != "" {
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && kode = ? && status=0", Request.Kode_gudang, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_gudang = ? && kode = ? && status=0", Request.Kode_gudang, Request_filter.Kode_supplier).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	} else {
 
-		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && status=0", Request.Kode_gudang).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
+		rows, err = con.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_keluar_masuk.kode").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk ").Where("stock_keluar_masuk.kode_gudang = ? && status=0", Request.Kode_gudang).Group("stock_keluar_masuk.kode_stock_keluar_masuk").Order("stock_keluar_masuk.co ASC").Rows()
 
 	}
 
@@ -194,7 +194,7 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter r
 		con_detail := db.CreateConGorm().Table("barang_stock_keluar_masuk")
 		var detail_data []response.Read_Detail_Stock_Masuk_Response
 
-		err := con_detail.Select("kode_barang_keluar_masuk", "nama_barang", "tanggal_kadaluarsa", "jumlah_barang", "harga").Joins("join stock s on barang_stock_keluar_masuk.kode_stock = s.kode_stock").Where("kode_stock_keluar_masuk = ?", data.Kode_stock_keluar_masuk).Scan(&detail_data).Error
+		err := con_detail.Select("kode_barang_keluar_masuk", "nama_barang", "DATE_FORMAT(tanggal_kadaluarsa, '%d-%m-%Y') AS tanggal_kadaluarsa", "jumlah_barang", "harga").Joins("join stock s on barang_stock_keluar_masuk.kode_stock = s.kode_stock").Where("kode_stock_keluar_masuk = ?", data.Kode_stock_keluar_masuk).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound
