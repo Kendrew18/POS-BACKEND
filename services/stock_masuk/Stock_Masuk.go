@@ -5,6 +5,7 @@ import (
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/models/response"
 	"POS-BACKEND/tools"
+	"database/sql"
 	"fmt"
 	"math"
 	"net/http"
@@ -45,14 +46,14 @@ func Input_Stock_Masuk(Request_stock_masuk request.Input_Stock_Masuk_Request, Re
 	for i := 0; i < len(kode_stock); i++ {
 		var barang_V2 request.Input_Barang_Stock_Masuk_V2_Request
 
-		con_barang := db.CreateConGorm().Table("barang_stock_masuk")
+		con_barang := db.CreateConGorm().Table("barang_stock_keluar_masuk")
 
 		co := 0
 
-		err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
+		err := con_barang.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		barang_V2.Co = co + 1
-		barang_V2.Kode_barang_masuk = "BSM-" + strconv.Itoa(barang_V2.Co)
+		barang_V2.Kode_barang_keluar_masuk = "BKM-" + strconv.Itoa(barang_V2.Co)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -61,11 +62,12 @@ func Input_Stock_Masuk(Request_stock_masuk request.Input_Stock_Masuk_Request, Re
 			return res, err.Error
 		}
 
-		barang_V2.Kode_stock_masuk = Request_stock_masuk.Kode_stock_masuk
+		barang_V2.Kode_stock_keluar_masuk = Request_stock_masuk.Kode_stock_masuk
 		barang_V2.Kode_stock = kode_stock[i]
 		barang_V2.Jumlah_barang = Jumlah_barang[i]
-		barang_V2.Harga_pokok = harga_pokok[i]
+		barang_V2.Harga = harga_pokok[i]
 		barang_V2.Total_harga = int64(math.Round(float64(harga_pokok[i]) * Jumlah_barang[i]))
+		barang_V2.Status = 0
 
 		date3, _ := time.Parse("02-01-2006", tgl_kadaluarsa[i])
 		barang_V2.Tanggal_kadaluarsa = date3.Format("2006-01-02")
@@ -73,7 +75,18 @@ func Input_Stock_Masuk(Request_stock_masuk request.Input_Stock_Masuk_Request, Re
 		fmt.Println(barang_V2.Tanggal_kadaluarsa)
 		fmt.Println(barang_V2)
 
-		err = con_barang.Select("co", "kode_barang_masuk", "kode_stock_masuk", "kode_stock", "tanggal_kadaluarsa", "jumlah_barang", "harga_pokok", "total_harga").Create(&barang_V2)
+		err = con_barang.Select("co", "kode_barang_keluar_masuk", "kode_stock", "kode_stock_keluar_masuk", "tanggal_kadaluarsa", "jumlah_barang", "harga", "total_harga", "status").Create(&barang_V2)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = barang_V2
+			return res, err.Error
+		}
+
+		con_detail_stock := db.CreateConGorm().Table("detail_stock")
+
+		err = con_detail_stock.Select("co", "kode_barang_keluar_masuk", "kode_stock", "kode_stock_keluar_masuk", "tanggal_kadaluarsa", "jumlah_barang", "harga", "total_harga", "status").Create(&barang_V2)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -114,16 +127,58 @@ func Input_Stock_Masuk(Request_stock_masuk request.Input_Stock_Masuk_Request, Re
 	return res, nil
 }
 
-func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request) (response.Response, error) {
+func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter request.Read_Stock_Masuk_Filter_Request) (response.Response, error) {
 
 	var res response.Response
 
 	var arr_data []response.Read_Stock_Masuk_Response
 	var data response.Read_Stock_Masuk_Response
+	var rows *sql.Rows
+	var err error
 
 	con := db.CreateConGorm().Table("stock_masuk")
 
-	rows, err := con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_masuk bs ON bs.kode_stock_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ?", Request.Kode_gudang).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+	if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" && Request_filter.Kode_supplier != "" {
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		date_sql := date.Format("2006-01-02")
+
+		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
+		date_sql2 := date2.Format("2006-01-02")
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? && (tanggal_masuk >= ? && tanggal_masuk <= ?) && stock_masuk.kode_supplier = ?", Request.Kode_gudang, date_sql, date_sql2, Request_filter.Kode_supplier).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 == "" && Request_filter.Kode_supplier != "" {
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		date_sql := date.Format("2006-01-02")
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? && tanggal_masuk = ? && stock_masuk.kode_supplier = ?", Request.Kode_gudang, date_sql, Request_filter.Kode_supplier).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" && Request_filter.Kode_supplier == "" {
+
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		date_sql := date.Format("2006-01-02")
+
+		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
+		date_sql2 := date2.Format("2006-01-02")
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? && (tanggal_masuk >= ? && tanggal_masuk <= ?)", Request.Kode_gudang, date_sql, date_sql2).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	} else if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 == "" && Request_filter.Kode_supplier == "" {
+
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		date_sql := date.Format("2006-01-02")
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? && tanggal_masuk = ?", Request.Kode_gudang, date_sql).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	} else if Request_filter.Kode_supplier != "" {
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? && kode_supplier = ?", Request.Kode_gudang, Request_filter.Kode_supplier).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	} else {
+
+		rows, err = con.Select("stock_masuk.kode_stock_masuk", "tanggal_masuk", "kode_nota", "nama_penanggung_jawab", "s.nama_supplier", "sum(jumlah_barang)", "sum(total_harga)").Joins("JOIN supplier s ON s.kode_supplier = stock_masuk.kode_supplier").Joins("JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk ").Where("stock_masuk.kode_gudang = ? ", Request.Kode_gudang).Group("stock_masuk.kode_stock_masuk").Order("stock_masuk.co ASC").Rows()
+
+	}
 
 	if err != nil {
 		res.Status = http.StatusNotFound
@@ -136,10 +191,10 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request) (response.Respon
 
 	for rows.Next() {
 		rows.Scan(&data.Kode_stock_masuk, &data.Tanggal_masuk, &data.Kode_nota, &data.Penanggung_jawab, &data.Nama_supplier, &data.Jumlah_total, &data.Total_harga)
-		con_detail := db.CreateConGorm().Table("barang_stock_masuk")
+		con_detail := db.CreateConGorm().Table("barang_stock_keluar_masuk")
 		var detail_data []response.Read_Detail_Stock_Masuk_Response
 
-		err := con_detail.Select("kode_barang_masuk", "nama_barang", "tanggal_kadaluarsa", "jumlah_barang", "harga_pokok").Joins("join stock s on barang_stock_masuk.kode_stock = s.kode_stock").Where("Kode_stock_masuk = ?", data.Kode_stock_masuk).Scan(&detail_data).Error
+		err := con_detail.Select("kode_barang_keluar_masuk", "nama_barang", "tanggal_kadaluarsa", "jumlah_barang", "harga").Joins("join stock s on barang_stock_keluar_masuk.kode_stock = s.kode_stock").Where("kode_stock_keluar_masuk = ?", data.Kode_stock_masuk).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound

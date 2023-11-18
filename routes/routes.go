@@ -4,8 +4,10 @@ import (
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/satuan_barang"
 	"POS-BACKEND/controllers/stock"
+	"POS-BACKEND/controllers/stock_keluar"
 	"POS-BACKEND/controllers/stock_masuk"
 	"POS-BACKEND/controllers/supplier"
+	"POS-BACKEND/controllers/toko"
 	"POS-BACKEND/controllers/user"
 	"net/http"
 
@@ -43,17 +45,30 @@ func Init() *echo.Echo {
 	ST.POST("/stock-barang", stock.InputBarang)
 	ST.GET("/stock-barang", stock.ReadBarang)
 	ST.DELETE("/stock-barang", stock.DeleteBarang)
+	ST.GET("/stock", stock.ReadStock)
 
 	//Supplier
 	SP := e.Group("/SP")
 	SP.POST("/supplier", supplier.InputSupplier)
 	SP.GET("/supplier", supplier.ReadSupplier)
 	SP.GET("/drop-down-nama-sup", supplier.DropdownNamaSupplier)
+	SP.DELETE("/supplier", supplier.DeleteSupplier)
 
 	//Stock Masuk
 	SM := e.Group("/SM")
 	SM.POST("/stock-masuk", stock_masuk.InputStockMasuk)
 	SM.GET("/stock-masuk", stock_masuk.ReadStockMasuk)
+
+	//Toko
+	TK := e.Group("/TK")
+	TK.POST("/toko", toko.InputToko)
+	TK.GET("/toko", toko.ReadToko)
+	TK.DELETE("/toko", toko.DeleteToko)
+
+	//Stock_keluar
+	SK := e.Group("/SK")
+	SK.POST("/stock-keluar", stock_keluar.InputStockKeluar)
+	SK.GET("/stock-keluar", stock_keluar.ReadStockKeluar)
 
 	return e
 }

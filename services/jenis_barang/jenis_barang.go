@@ -115,3 +115,33 @@ func Delete_Jenis_Barang(Request request.Delete_Jenis_Barang_Request) (response.
 
 	return res, nil
 }
+
+func Dropdown_Jenis_Barang(Request request.Dropdown_Jenis_Barang_Request) (response.Response, error) {
+
+	var res response.Response
+	var nama_jenis_barang []response.Read_Jenis_Barang_Response
+
+	con := db.CreateConGorm().Table("barang_supplier")
+
+	err := con.Select("kode_jenis_barang", "nama_jenis_barang").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&nama_jenis_barang).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if nama_jenis_barang == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = nama_jenis_barang
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = nama_jenis_barang
+	}
+
+	return res, nil
+}

@@ -169,3 +169,39 @@ func Dropdown_Nama_Supplier(Request request.Read_Supplier_Request) (response.Res
 
 	return res, nil
 }
+
+func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response, error) {
+	var res response.Response
+
+	var supplier []string
+
+	con_masuk := db.CreateConGorm().Table("stock_masuk")
+
+	err := con_masuk.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&supplier).Error
+
+	if supplier == nil && err == nil {
+		con := db.CreateConGorm().Table("satuan_barang")
+
+		err := con.Where("kode_satuan_barang=?", Request.Kode_supplier).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}

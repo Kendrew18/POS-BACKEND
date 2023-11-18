@@ -31,7 +31,7 @@ func Input_Toko(Request request.Input_Toko_Request) (response.Response, error) {
 		return res, err.Error
 	}
 
-	err = con.Create(&Request)
+	err = con.Select("co", "kode_toko", "nama_toko", "alamat", "nomor_telpon", "kode_gudang").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -52,11 +52,11 @@ func Input_Toko(Request request.Input_Toko_Request) (response.Response, error) {
 func Read_Toko(Request request.Read_Toko_Request) (response.Response, error) {
 
 	var res response.Response
-	var data []response.Read_Satuan_Barang_Response
+	var data []response.Read_Toko_Response
 
 	con := db.CreateConGorm().Table("toko")
 
-	err := con.Select("kode_toko", "nama_toko", "alamat", "nomor_telpon").Where("kode_gudang =?", Request.Kode_gudang).Scan(&Request).Error
+	err := con.Select("kode_toko", "nama_toko", "alamat", "nomor_telpon").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound
@@ -74,6 +74,42 @@ func Read_Toko(Request request.Read_Toko_Request) (response.Response, error) {
 		res.Status = http.StatusOK
 		res.Message = "Suksess"
 		res.Data = data
+	}
+
+	return res, nil
+}
+
+func Delete_Toko(Request request.Delete_Toko_Request) (response.Response, error) {
+	var res response.Response
+
+	var barang_stock_keluar []string
+
+	con_keluar := db.CreateConGorm().Table("stock_keluar")
+
+	err := con_keluar.Select("kode_toko").Where("kode_toko =?", Request.Kode_toko).Scan(&barang_stock_keluar).Error
+
+	if barang_stock_keluar == nil && err == nil {
+		con := db.CreateConGorm().Table("toko")
+
+		err := con.Where("kode_toko=?", Request.Kode_toko).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
 	}
 
 	return res, nil

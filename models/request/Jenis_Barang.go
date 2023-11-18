@@ -14,3 +14,7 @@ type Read_Jenis_Barang_Request struct {
 type Delete_Jenis_Barang_Request struct {
 	Kode_jenis_barang string `json:"kode_jenis_barang"`
 }
+
+type Dropdown_Jenis_Barang_Request struct {
+	Kode_gudang string `json:"kode_gudang"`
+}

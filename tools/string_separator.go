@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -108,7 +107,6 @@ func String_Separator_To_Int64(str string) []int64 {
 				} else {
 					new += string(by[i])
 					i++
-					fmt.Println(new)
 				}
 			}
 		} else {

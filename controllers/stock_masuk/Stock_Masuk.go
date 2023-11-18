@@ -37,10 +37,14 @@ func InputStockMasuk(c echo.Context) error {
 //Read Stock Masuk
 func ReadStockMasuk(c echo.Context) error {
 	var Request request.Read_Stock_Masuk_Request
+	var Request_filter request.Read_Stock_Masuk_Filter_Request
 
 	Request.Kode_gudang = c.FormValue("kode_gudang")
+	Request_filter.Kode_supplier = c.FormValue("kode_supplier")
+	Request_filter.Tanggal_1 = c.FormValue("tanggal_1")
+	Request_filter.Tanggal_2 = c.FormValue("tanggal_2")
 
-	result, err := stock_masuk.Read_Stock_Masuk(Request)
+	result, err := stock_masuk.Read_Stock_Masuk(Request, Request_filter)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

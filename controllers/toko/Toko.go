@@ -39,3 +39,18 @@ func ReadToko(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DeleteToko(c echo.Context) error {
+
+	var Request request.Delete_Toko_Request
+
+	Request.Kode_toko = c.FormValue("kode_toko")
+
+	result, err := toko.Delete_Toko(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

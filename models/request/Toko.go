@@ -12,3 +12,7 @@ type Input_Toko_Request struct {
 type Read_Toko_Request struct {
 	Kode_gudang string `json:"kode_gudang"`
 }
+
+type Delete_Toko_Request struct {
+	Kode_toko string `json:"kode_toko"`
+}

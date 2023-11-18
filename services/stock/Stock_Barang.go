@@ -175,33 +175,75 @@ func Delete_Barang(Request request.Delete_Barang_Request) (response.Response, er
 func Read_Stock(Request request.Read_Stock_Request) (response.Response, error) {
 
 	var res response.Response
-	var data []response.Read_Stock_Response
+	var data response.Read_Stock_Response
+	var arr_data []response.Read_Stock_Response
+	var rows *sql.Rows
 	var err error
 
 	con := db.CreateConGorm().Table("stock")
 
-	if Request.Kode_jenis_barang != "" {
-		err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan_barang.nama_satuan_barang", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Joins("satuan_barang").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&data).Error
+	if Request.Kode_jenis_barang == "" {
+		rows, err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "sb.nama_satuan_barang", "jb.nama_jenis_barang").Joins("JOIN jenis_barang jb ON jb.kode_jenis_barang = stock.kode_jenis_barang").Joins("JOIN satuan_barang sb ON sb.kode_satuan_barang = stock.kode_satuan_barang").Where("stock.kode_gudang = ?", Request.Kode_gudang).Order("stock.co ASC").Rows()
 	} else {
-		err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "satuan_barang.nama_satuan_barang", "jenis_barang.nama_jenis_barang").Joins("jenis_barang").Joins("satuan_barang").Where("kode_gudang = ? && kode_jenis_barang = ?", Request.Kode_gudang, Request.Kode_jenis_barang).Scan(&data).Error
+		rows, err = con.Select("kode_stock", "nama_barang", "harga_jual", "jumlah", "sb.nama_satuan_barang", "jb.nama_jenis_barang").Joins("JOIN jenis_barang jb ON jb.kode_jenis_barang = stock.kode_jenis_barang").Joins("JOIN satuan_barang sb ON sb.kode_satuan_barang = stock.kode_satuan_barang").Where("stock.kode_gudang = ? && stock.kode_jenis_barang = ?", Request.Kode_gudang, Request.Kode_jenis_barang).Order("stock.co ASC").Rows()
 	}
 
-	if err != nil {
-		res.Status = http.StatusNotFound
-		res.Message = "Status Not Found"
-		res.Data = data
-		return res, err
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&data.Kode_stock, &data.Nama_Barang, &data.Harga_jual, &data.Jumlah, &data.Nama_satuan_barang, &data.Nama_jenis_barang)
+
+		if err != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = data
+			return res, err
+		}
+
+		con_gudang := db.CreateConGorm().Table("gudang")
+
+		status := 0
+
+		err = con_gudang.Select("status_lifo_fifo").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&status).Error
+
+		if err != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status tidak ada"
+			res.Data = data
+			return res, err
+		}
+
+		var data_detail []response.Detail_Stock_Response
+
+		con_stock_masuk := db.CreateConGorm().Table("stock_masuk")
+
+		if status == 0 {
+			err = con_stock_masuk.Select("tanggal_masuk", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk").Where("kode_stock=?", data.Kode_stock).Order("tanggal_masuk DESC").Scan(&data_detail).Error
+		} else {
+			err = con_stock_masuk.Select("tanggal_masuk", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_masuk.kode_stock_masuk").Where("kode_stock=?", data.Kode_stock).Order("tanggal_masuk ASC").Scan(&data_detail).Error
+		}
+
+		if err != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = data
+			return res, err
+		}
+
+		data.Detail_stock = data_detail
+
+		arr_data = append(arr_data, data)
 	}
 
-	if data == nil {
+	if arr_data == nil {
 		res.Status = http.StatusNotFound
 		res.Message = "Status Not Found"
-		res.Data = data
+		res.Data = arr_data
 
 	} else {
 		res.Status = http.StatusOK
 		res.Message = "Suksess"
-		res.Data = data
+		res.Data = arr_data
 	}
 
 	return res, nil
