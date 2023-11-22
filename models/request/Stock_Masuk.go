@@ -38,3 +38,14 @@ type Read_Stock_Masuk_Filter_Request struct {
 	Tanggal_2     string `json:"tanggal_2"`
 	Kode_supplier string `json:"kode_supplier"`
 }
+
+type Update_Stock_Masuk_Kode_Request struct {
+	Kode_barang_keluar_masuk string `json:"kode_barang_keluar_masuk"`
+}
+
+type Update_Stock_Masuk_Request struct {
+	Tanggal_kadaluarsa string  `json:"tanggal_kadaluarsa"`
+	Jumlah_barang      float64 `json:"jumlah_barang"`
+	Harga              int64   `json:"harga"`
+	Total_harga        int64   `json:"total_harga"`
+}

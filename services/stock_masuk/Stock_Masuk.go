@@ -222,3 +222,198 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter r
 
 	return res, nil
 }
+
+func Update_Barang_Stock_Masuk(Request request.Update_Stock_Masuk_Request, Request_kode request.Update_Stock_Masuk_Kode_Request) (response.Response, error) {
+
+	var res response.Response
+	var data response.Stock_Masuk_Lama_Response
+	check := ""
+	con_check := db.CreateConGorm().Table("pengurangan_stock")
+
+	err := con_check.Select("kode_pengurangan").Where("kode_barang_keluar_masuk = ?", Request_kode.Kode_barang_keluar_masuk).Scan(&check)
+
+	if err.Error != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Update Error"
+		res.Data = Request
+		return res, err.Error
+	}
+	if check == "" {
+		con := db.CreateConGorm().Table("barang_stock_keluar_masuk")
+
+		err = con.Select("kode_stock_keluar_masuk", "kode_stock", "jumlah_barang").Where("kode_barang_keluar_masuk=?", Request_kode.Kode_barang_keluar_masuk).Scan(&data)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		jumlah_lama := 0.0
+
+		err = db.CreateConGorm().Table("stock").Select("jumlah").Where("kode_stock =?", data.Kode_stock).Scan(&jumlah_lama)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		jumlah_baru := jumlah_lama - data.Jumlah_barang + Request.Jumlah_barang
+
+		err = db.CreateConGorm().Table("stock").Where("kode_stock = ?", data.Kode_stock).Update("jumlah", jumlah_baru)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		date3, _ := time.Parse("02-01-2006", Request.Tanggal_kadaluarsa)
+		Request.Tanggal_kadaluarsa = date3.Format("2006-01-02")
+
+		Request.Total_harga = int64(math.Round(float64(Request.Harga) * Request.Jumlah_barang))
+
+		err = con.Where("kode_barang_keluar_masuk = ?", Request_kode.Kode_barang_keluar_masuk).Select("tanggal_kadaluarsa", "jumlah_barang", "harga", "total_harga").Updates(&Request)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		con_detail_barang := db.CreateConGorm().Table("detail_stock")
+
+		err = con_detail_barang.Where("kode_barang_keluar_masuk = ?", Request_kode.Kode_barang_keluar_masuk).Select("tanggal_kadaluarsa", "jumlah_barang", "harga", "total_harga").Updates(&Request)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Barang Tidak dapat di update"
+		res.Data = Request
+		return res, err.Error
+	}
+	return res, nil
+
+}
+
+func Delete_Barang_Stock_Masuk(Request request.Update_Stock_Masuk_Kode_Request) (response.Response, error) {
+
+	var res response.Response
+	var data response.Stock_Masuk_Lama_Response
+	check := ""
+	con_check := db.CreateConGorm().Table("pengurangan_stock")
+
+	err := con_check.Select("kode_pengurangan").Where("kode_barang_keluar_masuk = ?", Request.Kode_barang_keluar_masuk).Scan(&check)
+
+	if err.Error != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Update Error"
+		res.Data = Request
+		return res, err.Error
+	}
+
+	if check == "" {
+		con := db.CreateConGorm().Table("barang_stock_keluar_masuk")
+
+		err = con.Select("kode_stock_keluar_masuk", "kode_stock", "jumlah_barang").Where("kode_barang_keluar_masuk=?", Request.Kode_barang_keluar_masuk).Scan(&data)
+
+		fmt.Println(data.Kode_stock)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		jumlah_lama := 0.0
+
+		err = db.CreateConGorm().Table("stock").Select("jumlah").Where("kode_stock =?", data.Kode_stock).Scan(&jumlah_lama)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		jumlah_baru := jumlah_lama - data.Jumlah_barang
+
+		err = db.CreateConGorm().Table("stock").Where("kode_stock = ?", data.Kode_stock).Update("jumlah", jumlah_baru)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		con_detail_barang := db.CreateConGorm().Table("detail_stock")
+
+		err = con_detail_barang.Where("kode_barang_keluar_masuk = ?", Request.Kode_barang_keluar_masuk).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Update Error"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		con_barang_keluar_masuk := db.CreateConGorm().Table("barang_stock_keluar_masuk")
+
+		err = con_barang_keluar_masuk.Where("kode_barang_keluar_masuk = ?", Request.Kode_barang_keluar_masuk).Delete("")
+
+		kode_barang := ""
+
+		err = con_barang_keluar_masuk.Select("kode_barang_keluar_masuk").Where("kode_stock_keluar_masuk=?", data.Kode_stock_keluar_masuk).Limit(1).Scan(&kode_barang)
+
+		if kode_barang == "" {
+			con_stock_keluar_masuk := db.CreateConGorm().Table("stock_keluar_masuk")
+
+			err = con_stock_keluar_masuk.Where("kode_stock_keluar_masuk = ?", Request.Kode_barang_keluar_masuk).Delete("")
+
+			if err.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = Request
+				return res, err.Error
+			}
+		}
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Barang Tidak dapat di update"
+		res.Data = Request
+		return res, err.Error
+	}
+
+	return res, nil
+}

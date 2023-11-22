@@ -18,3 +18,9 @@ type Read_Detail_Stock_Masuk_Response struct {
 	Jumlah_barang            float64 `json:"jumlah_barang"`
 	Harga                    int64   `json:"harga"`
 }
+
+type Stock_Masuk_Lama_Response struct {
+	Kode_stock_keluar_masuk string  `json:"kode_stock_keluar_masuk"`
+	Kode_stock              string  `json:"kode_stock"`
+	Jumlah_barang           float64 `json:"jumlah_barang"`
+}

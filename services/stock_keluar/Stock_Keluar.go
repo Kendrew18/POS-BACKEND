@@ -38,7 +38,7 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 
 	co := 0
 
-	err := con_stock_keluar.Select("co").Order("co DESC").Scan(&co)
+	err := con_stock_keluar.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	Request.Co = co + 1
 	Request.Kode_stock_keluar_masuk = "SK-" + strconv.Itoa(Request.Co)
@@ -80,7 +80,7 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 		err := con_bsm.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		barang_V2.Co = co + 1
-		barang_V2.Kode_barang_keluar_masuk = "BSM-" + strconv.Itoa(barang_V2.Co)
+		barang_V2.Kode_barang_keluar_masuk = "BKM-" + strconv.Itoa(barang_V2.Co)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -150,9 +150,9 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 		//1 fifo
 		if status == 0 {
 
-			err = con_stock_masuk.Select("kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN barang_stock_keluar_masuk b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ?", kode_stock[i]).Order("tanggal DESC").Scan(&data)
+			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ? ", kode_stock[i]).Order("tanggal DESC").Scan(&data)
 		} else {
-			err = con_stock_masuk.Select("kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN barang_stock_keluar_masuk b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ?", kode_stock[i]).Order("tanggal ASC").Scan(&data)
+			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ?", kode_stock[i]).Order("tanggal ASC").Scan(&data)
 		}
 
 		if err.Error != nil {
@@ -174,6 +174,7 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 		//fmt.Println(data)
 
 		for x == 0 && index < len(data) && data != nil {
+			var data_pengurangan response.Kode_stock_keluar_masuk
 
 			con_detail_stock := db.CreateConGorm().Table("detail_stock")
 
@@ -187,6 +188,19 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 			}
 
 			err = con_detail_stock.Where("kode_barang_keluar_masuk = ?", data[index].Kode_barang_keluar_masuk).Update("jumlah_barang", update_jumlah)
+
+			con_pengurangan := db.CreateConGorm().Table("pengurangan_stock")
+
+			co := 0
+
+			err := con_pengurangan.Select("co").Order("co DESC").Limit(1).Scan(&co)
+
+			data_pengurangan.Co = co + 1
+			data_pengurangan.Kode_pengurangan = "PE-" + strconv.Itoa(data_pengurangan.Co)
+			data_pengurangan.Kode_stock_keluar_masuk = data[i].Kode_stock_keluar_masuk
+			data_pengurangan.Kode_barang_keluar_masuk = data[i].Kode_barang_keluar_masuk
+
+			err = con_pengurangan.Select("co", "kode_pengurangan", "kode_stock_keluar_masuk", "kode_barang_keluar_masuk").Create(&data_pengurangan)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound

@@ -19,8 +19,16 @@ type Read_Barang_Stock_Keluar_Response struct {
 }
 
 type Read_Tanggal_dan_Jumlah struct {
+	Kode_stock_keluar_masuk  string  `json:"kode_stock_keluar_masuk"`
 	Kode_barang_keluar_masuk string  `json:"kode_barang_keluar_masuk"`
 	Kode_stock               string  `json:"kode_stock"`
 	Tanggal_masuk            string  `json:"Tanggal_masuk"`
 	Jumlah_barang            float64 `json:"Jumlah_barang"`
+}
+
+type Kode_stock_keluar_masuk struct {
+	Co                       int    `json:"co"`
+	Kode_pengurangan         string `json:"kode_pengurangan"`
+	Kode_stock_keluar_masuk  string `json:"Kode_stock_keluar_masuk"`
+	Kode_barang_keluar_masuk string `json:"Kode_barang_keluar_masuk"`
 }

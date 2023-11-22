@@ -4,6 +4,7 @@ import (
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/services/stock_masuk"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -45,6 +46,38 @@ func ReadStockMasuk(c echo.Context) error {
 	Request_filter.Tanggal_2 = c.FormValue("tanggal_2")
 
 	result, err := stock_masuk.Read_Stock_Masuk(Request, Request_filter)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}
+
+func UpdateBarangStockMasuk(c echo.Context) error {
+	var Request request.Update_Stock_Masuk_Request
+	var Request_kode request.Update_Stock_Masuk_Kode_Request
+
+	Request_kode.Kode_barang_keluar_masuk = c.FormValue("kode_barang_keluar_masuk")
+	Request.Tanggal_kadaluarsa = c.FormValue("tanggal_kadaluarsa")
+	Request.Jumlah_barang, _ = strconv.ParseFloat(c.FormValue("jumlah_barang"), 64)
+	Request.Harga, _ = strconv.ParseInt(c.FormValue("harga"), 10, 64)
+
+	result, err := stock_masuk.Update_Barang_Stock_Masuk(Request, Request_kode)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}
+
+func DeleteBarangStockMasuk(c echo.Context) error {
+	var Request_kode request.Update_Stock_Masuk_Kode_Request
+
+	Request_kode.Kode_barang_keluar_masuk = c.FormValue("kode_barang_keluar_masuk")
+
+	result, err := stock_masuk.Delete_Barang_Stock_Masuk(Request_kode)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
