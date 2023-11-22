@@ -114,3 +114,32 @@ func Delete_Toko(Request request.Delete_Toko_Request) (response.Response, error)
 
 	return res, nil
 }
+
+func Dropdown_Nama_Toko(Request request.Read_Toko_Request) (response.Response, error) {
+	var res response.Response
+	var data []response.Read_Dropdown_Nama_Toko_Response
+
+	con := db.CreateConGorm().Table("toko")
+
+	err := con.Select("kode_toko", "nama_toko").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	if data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = data
+	}
+
+	return res, nil
+}

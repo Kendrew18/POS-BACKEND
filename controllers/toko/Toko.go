@@ -54,3 +54,18 @@ func DeleteToko(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func DropdownNamaToko(c echo.Context) error {
+
+	var Request request.Read_Toko_Request
+
+	Request.Kode_gudang = c.FormValue("kode_gudang")
+
+	result, err := toko.Dropdown_Nama_Toko(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

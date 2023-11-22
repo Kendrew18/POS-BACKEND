@@ -50,6 +50,7 @@ func Init() *echo.Echo {
 	ST.DELETE("/stock-barang", stock.DeleteBarang)
 	ST.GET("/stock", stock.ReadStock)
 	ST.GET("/detail-stock", stock.Detailstock)
+	ST.GET("/dropdown-stock", stock.DropdownStock)
 
 	//Supplier
 	SP := e.Group("/SP")
@@ -57,6 +58,7 @@ func Init() *echo.Echo {
 	SP.GET("/supplier", supplier.ReadSupplier)
 	SP.GET("/drop-down-nama-sup", supplier.DropdownNamaSupplier)
 	SP.DELETE("/supplier", supplier.DeleteSupplier)
+	SP.GET("/drop-down-barang-sup", supplier.DropdownBarangSupplier)
 
 	//Stock Masuk
 	SM := e.Group("/SM")
@@ -70,6 +72,7 @@ func Init() *echo.Echo {
 	TK.POST("/toko", toko.InputToko)
 	TK.GET("/toko", toko.ReadToko)
 	TK.DELETE("/toko", toko.DeleteToko)
+	TK.GET("/dropdown-toko", toko.DropdownNamaToko)
 
 	//Stock_keluar
 	SK := e.Group("/SK")

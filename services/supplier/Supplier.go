@@ -205,3 +205,32 @@ func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response
 
 	return res, nil
 }
+
+func Dropdown_Barang_Supplier(Request request.Read_Barang_Supplier_Request) (response.Response, error) {
+	var res response.Response
+	var Barang_Supplier []response.Read_Barang_Supplier_Response
+
+	con := db.CreateConGorm().Table("barang_supplier")
+
+	err := con.Select("barang_supplier.kode_stock", "nama_barang").Joins("JOIN stock s on s.kode_stock = barang_supplier.kode_stock").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&Barang_Supplier).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Barang_Supplier
+		return res, err
+	}
+
+	if Barang_Supplier == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Barang_Supplier
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = Barang_Supplier
+	}
+
+	return res, nil
+}

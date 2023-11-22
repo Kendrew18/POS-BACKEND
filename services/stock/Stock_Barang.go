@@ -256,36 +256,6 @@ func Read_Stock(Request request.Read_Stock_Request) (response.Response, error) {
 	return res, nil
 }
 
-func Dropdown_Nama_Barang(Request request.Dropdown_Nama_Barang_Request) (response.Response, error) {
-
-	var res response.Response
-	var Nama_barang []response.Read_Dropdown_Nama_Supplier_Response
-
-	con := db.CreateConGorm().Table("barang_supplier")
-
-	err := con.Select("kode_stock", "nama_barang").Joins("JOIN stock on stock.kode_stock = barang_supplier.kode_stock").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&Nama_barang).Error
-
-	if err != nil {
-		res.Status = http.StatusNotFound
-		res.Message = "Status Not Found"
-		res.Data = Nama_barang
-		return res, err
-	}
-
-	if Nama_barang == nil {
-		res.Status = http.StatusNotFound
-		res.Message = "Status Not Found"
-		res.Data = Nama_barang
-
-	} else {
-		res.Status = http.StatusOK
-		res.Message = "Suksess"
-		res.Data = Nama_barang
-	}
-
-	return res, nil
-}
-
 func Detail_stock(Request request.Read_Detail_Stock) (response.Response, error) {
 	var res response.Response
 
@@ -334,5 +304,33 @@ func Detail_stock(Request request.Read_Detail_Stock) (response.Response, error) 
 		res.Data = arr_data
 	}
 
+	return res, nil
+}
+
+func Dropdown_Stock(Request request.Dropdown_Stock_Request) (response.Response, error) {
+	var res response.Response
+	var data []response.Dropdown_Nama_Barang_Response
+
+	con := db.CreateConGorm().Table("stock")
+
+	err := con.Select("kode_stock", "nama_barang").Where("kode_gudang = ? && jumlah > 0", Request.Kode_gudang).Scan(&data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	if data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = data
+	}
 	return res, nil
 }
