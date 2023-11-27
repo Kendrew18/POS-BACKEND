@@ -194,7 +194,7 @@ func Read_Stock_Masuk(Request request.Read_Stock_Masuk_Request, Request_filter r
 		con_detail := db.CreateConGorm().Table("barang_stock_keluar_masuk")
 		var detail_data []response.Read_Detail_Stock_Masuk_Response
 
-		err := con_detail.Select("kode_barang_keluar_masuk", "nama_barang", "DATE_FORMAT(tanggal_kadaluarsa, '%d-%m-%Y') AS tanggal_kadaluarsa", "jumlah_barang", "harga").Joins("join stock s on barang_stock_keluar_masuk.kode_stock = s.kode_stock").Where("kode_stock_keluar_masuk = ?", data.Kode_stock_keluar_masuk).Scan(&detail_data).Error
+		err := con_detail.Select("kode_barang_keluar_masuk", "nama_barang", "DATE_FORMAT(tanggal_kadaluarsa, '%d-%m-%Y') AS tanggal_kadaluarsa", "jumlah_barang", "harga", "status").Joins("join stock s on barang_stock_keluar_masuk.kode_stock = s.kode_stock").Where("kode_stock_keluar_masuk = ?", data.Kode_stock_keluar_masuk).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound

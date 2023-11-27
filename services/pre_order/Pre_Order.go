@@ -116,19 +116,19 @@ func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter reque
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT pre_order.kode_pre_order, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, kode_nota,nama_supplier, nama_penanggung_jawab, sum(jumlah_barang), sum(total_harga), status FROM pre_order JOIN supplier s ON s.kode_supplier = pre_order.kode_supplier JOIN barang_pre_order bpo ON bpo.kode_pre_order = pre_order.kode_pre_order WHERE kode_gudang = " + Request.Kode_gudang
+	statement := "SELECT pre_order.kode_pre_order, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, kode_nota, nama_supplier, nama_penanggung_jawab, sum(jumlah_barang), sum(total_harga), status FROM pre_order JOIN supplier s ON s.kode_supplier = pre_order.kode_supplier JOIN barang_pre_order bpo ON bpo.kode_pre_order = pre_order.kode_pre_order WHERE pre_order.kode_gudang = '" + Request.Kode_gudang + "'"
 
 	if Request_filter.Kode_supplier != "" {
-		statement += " AND kode_supplier = " + Request_filter.Kode_supplier
+		statement += " AND kode_supplier = '" + Request_filter.Kode_supplier + "'"
 	}
 
 	if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" {
 
-		statement += " AND (tanggal >= " + Request_filter.Tanggal_1 + " && tanggal <= " + Request_filter.Tanggal_2 + " )"
+		statement += " AND (tanggal >= '" + Request_filter.Tanggal_1 + "' && tanggal <= '" + Request_filter.Tanggal_2 + "' )"
 
 	} else if Request_filter.Tanggal_1 != "" {
 
-		statement += " && tanggal = " + Request_filter.Tanggal_1
+		statement += " && tanggal = '" + Request_filter.Tanggal_1 + "'"
 
 	}
 
@@ -147,7 +147,7 @@ func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter reque
 
 	for rows.Next() {
 
-		err = rows.Scan(&data.Kode_pre_order, &data.Tanggal, &data.Kode_nota, &data.Penanggung_jawab, &data.Nama_supplier, &data.Jumlah_total, &data.Total_harga)
+		err = rows.Scan(&data.Kode_pre_order, &data.Tanggal, &data.Kode_nota, &data.Penanggung_jawab, &data.Nama_supplier, &data.Jumlah_total, &data.Total_harga, &data.Status)
 
 		if err != nil {
 			res.Status = http.StatusNotFound
@@ -341,9 +341,18 @@ func Update_Status_Pre_Order(Request request.Update_Status_Pre_Order_Request, Re
 		} else if Request.Status == 1 {
 			con := db.CreateConGorm().Table("pre_order")
 
+			err := con.Where("kode_pre_order = ?", Request_kode.Kode_pre_order).Select("status").Updates(&Request)
+
+			if err.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = Request
+				return res, err.Error
+			}
+
 			var Request_Input_stock request.Input_Stock_Masuk_Request
 
-			err := con.Select("tanggal", "kode_nota", "nama_penanggung_jawab", "kode_gudang").Where("kode_pre_order = ?", Request_kode.Kode_pre_order).Scan(&Request_Input_stock)
+			err = con.Select("tanggal", "kode_nota", "nama_penanggung_jawab", "kode_gudang").Where("kode_pre_order = ?", Request_kode.Kode_pre_order).Scan(&Request_Input_stock)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound

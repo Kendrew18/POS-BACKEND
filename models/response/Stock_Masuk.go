@@ -17,6 +17,7 @@ type Read_Detail_Stock_Masuk_Response struct {
 	Tanggal_kadaluarsa       string  `json:"tanggal_kadaluarsa"`
 	Jumlah_barang            float64 `json:"jumlah_barang"`
 	Harga                    int64   `json:"harga"`
+	Status                   int     `json:"status"`
 }
 
 type Stock_Masuk_Lama_Response struct {

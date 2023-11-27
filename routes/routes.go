@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"POS-BACKEND/controllers/audit"
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/pre_order"
+	"POS-BACKEND/controllers/refund"
 	"POS-BACKEND/controllers/satuan_barang"
 	"POS-BACKEND/controllers/stock"
 	"POS-BACKEND/controllers/stock_keluar"
@@ -86,6 +88,18 @@ func Init() *echo.Echo {
 	PO.PUT("/pre-order", pre_order.UpdatePreOrder)
 	PO.DELETE("/pre-order", pre_order.DeletePreOrder)
 	PO.PUT("/status-pre-order", pre_order.UpdateStatusPreOrder)
+
+	//Refund
+	RF := e.Group("/RF")
+	RF.POST("/refund", refund.InputRefundSupplier)
+	RF.GET("/refund", refund.ReadRefund)
+	RF.PUT("/refund", refund.UpdateBarangRefund)
+	RF.DELETE("/refund", refund.DeleteBarangRefund)
+	RF.PUT("/update-status", refund.UpdateStatusRefund)
+
+	//Audit
+	AU := e.Group("AU")
+	AU.GET("/audit", audit.ReadDataAwalAuditStock)
 
 	return e
 }

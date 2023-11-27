@@ -8,6 +8,7 @@ type Read_Pre_Order_Response struct {
 	Nama_supplier      string                             `json:"nama_supplier"`
 	Jumlah_total       float64                            `json:"jumlah_total"`
 	Total_harga        int64                              `json:"total_harga"`
+	Status             int                                `json:"status"`
 	Detail_stock_masuk []Read_Detail_Stock_Masuk_Response `json:"detail_stock_masuk"`
 }
 
