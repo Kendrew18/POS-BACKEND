@@ -29,7 +29,6 @@ func InputBarang(c echo.Context) error {
 func ReadBarang(c echo.Context) error {
 	var Request request.Read_Stock_Request
 	Request.Kode_gudang = c.FormValue("kode_gudang")
-	Request.Kode_jenis_barang = c.FormValue("kode_jenis_barang")
 
 	result, err := stock.Read_Barang(Request)
 
