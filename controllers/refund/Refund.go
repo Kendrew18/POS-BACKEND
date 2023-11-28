@@ -89,7 +89,9 @@ func UpdateStatusRefund(c echo.Context) error {
 	var Request_kode request.Update_Status_Kode_Refund_Request
 
 	Request.Status, _ = strconv.Atoi(c.FormValue("status"))
+
 	Request_kode.Kode_refund = c.FormValue("kode_refund")
+	Request_kode.Kode_user = c.FormValue("kode_user")
 
 	result, err := refund_supplier.Update_Status_Refund(Request, Request_kode)
 

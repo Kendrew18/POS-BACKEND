@@ -374,10 +374,17 @@ func Update_Status_Refund(Request request.Update_Status_Refund_Request, Request_
 
 			var Temp request.Tanggal_dan_Kode_Gudang
 
+			con_user := db.CreateConGorm().Table("user")
+
+			penanggung_jawab := ""
+
+			err = con_user.Select("username").Where("id_user = ?", Request_kode.Kode_user).Scan(&penanggung_jawab)
+
 			err = con.Select("tanggal_pengembalian", "kode_gudang").Where("kode_refund = ?", Request_kode.Kode_refund).Scan(&Temp)
 
 			Request_Input_stock.Kode_gudang = Temp.Kode_gudang
 			Request_Input_stock.Tanggal = Temp.Tanggal_pengembalian
+			Request_Input_stock.Nama_penanggung_jawab = penanggung_jawab
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound

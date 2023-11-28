@@ -56,6 +56,7 @@ type Update_Status_Refund_Request struct {
 
 type Update_Status_Kode_Refund_Request struct {
 	Kode_refund string `json:"kode_refund"`
+	Kode_user   string `json:"kode_user"`
 }
 
 type Move_Refund_To_Stock_Keluar_Request struct {
