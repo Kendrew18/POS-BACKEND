@@ -121,7 +121,7 @@ func Dropdown_Jenis_Barang(Request request.Dropdown_Jenis_Barang_Request) (respo
 	var res response.Response
 	var nama_jenis_barang []response.Read_Jenis_Barang_Response
 
-	con := db.CreateConGorm().Table("barang_supplier")
+	con := db.CreateConGorm().Table("jenis_barang")
 
 	err := con.Select("kode_jenis_barang", "nama_jenis_barang").Where("kode_gudang = ?", Request.Kode_gudang).Scan(&nama_jenis_barang).Error
 

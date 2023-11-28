@@ -99,7 +99,9 @@ func Init() *echo.Echo {
 
 	//Audit
 	AU := e.Group("AU")
-	AU.GET("/audit", audit.ReadDataAwalAuditStock)
+	AU.GET("/audit", audit.ReadAuditStock)
+	AU.POST("/audit", audit.InputAuditStock)
+	AU.GET("/awal-audit", audit.ReadDataAwalAuditStock)
 
 	return e
 }
