@@ -4,6 +4,7 @@ import (
 	"POS-BACKEND/db"
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/models/response"
+
 	"POS-BACKEND/tools"
 	"fmt"
 	"net/http"
@@ -94,10 +95,20 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 
 	err = con.Select("co", "kode_audit", "tanggal", "kode_stock", "kode_gudang").Create(&Request)
 
+	if err.Error != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err.Error
+	}
+
 	tanggal_masuk := tools.String_Separator_To_String(Request_detail.Tanggal_masuk)
 	stock_dalam_sistem := tools.String_Separator_To_float64(Request_detail.Stock_dalam_sistem)
 	stock_rill := tools.String_Separator_To_float64(Request_detail.Stock_rill)
 	selisih_stock := tools.String_Separator_To_float64(Request_detail.Selisih_stock)
+	kode_bkm := tools.String_Separator_To_String(Request_detail.Kode_barang_keluar_masuk)
+
+	total_stock := float64(0.0)
 
 	for i := 0; i < len(tanggal_masuk); i++ {
 		var detail request.Input_Detail_Audit_stock_V2_Request
@@ -128,6 +139,7 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 
 		fmt.Println(detail.Tanggal_masuk)
 		fmt.Println(detail)
+		fmt.Println(kode_bkm[i])
 
 		err = con_detail.Select("co", "kode_detail_audit", "kode_audit", "tanggal_masuk", "stock_dalam_sistem", "stock_rill", "selisih_stock").Create(&detail)
 
@@ -137,7 +149,25 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 			res.Data = detail
 			return res, err.Error
 		}
+
+		con_detail_stock := db.CreateConGorm().Table("detail_stock")
+
+		err = con_detail_stock.Where("kode_barang_keluar_masuk = ?", kode_bkm[i]).Update("jumlah_barang", &stock_rill[i])
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = detail
+			return res, err.Error
+		}
+
+		total_stock = total_stock + stock_rill[i]
+
 	}
+
+	con_stock := db.CreateConGorm().Table("stock")
+
+	err = con_stock.Where("kode_stock = ?", Request.Kode_stock).Update("jumlah", &total_stock)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -165,7 +195,7 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock) (response.Response, erro
 	date, _ := time.Parse("02-01-2006", Request.Tanggal)
 	Request.Tanggal = date.Format("2006-01-02")
 
-	rows, err := con.Select("kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_stock ds ON ds.kode_audit = audit.kode_audit").Where("kode_gudang = ? && tanggal = ?", Request.Kode_gudang, Request.Tanggal).Rows()
+	rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ?", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
 
 	defer rows.Close()
 

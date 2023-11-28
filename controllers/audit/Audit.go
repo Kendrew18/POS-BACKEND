@@ -33,6 +33,7 @@ func InputAuditStock(c echo.Context) error {
 	Request.Tanggal = c.FormValue("tanggal_sekarang")
 	Request.Kode_stock = c.FormValue("kode_stock")
 
+	Request_detail.Kode_barang_keluar_masuk = c.FormValue("kode_barang_keluar_masuk")
 	Request_detail.Tanggal_masuk = c.FormValue("tanggal_masuk")
 	Request_detail.Stock_dalam_sistem = c.FormValue("stock_dalam_sistem")
 	Request_detail.Stock_rill = c.FormValue("stock_rill")

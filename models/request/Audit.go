@@ -14,10 +14,11 @@ type Input_Audit_stock_Request struct {
 }
 
 type Input_Detail_Audit_stock_Request struct {
-	Tanggal_masuk      string `json:"tanggal_masuk"`
-	Stock_dalam_sistem string `json:"stock_dalam_sistem"`
-	Stock_rill         string `json:"stock_rill"`
-	Selisih_stock      string `json:"selisih_stock"`
+	Kode_barang_keluar_masuk string `json:"kode_barang_keluar_masuk"`
+	Tanggal_masuk            string `json:"tanggal_masuk"`
+	Stock_dalam_sistem       string `json:"stock_dalam_sistem"`
+	Stock_rill               string `json:"stock_rill"`
+	Selisih_stock            string `json:"selisih_stock"`
 }
 
 type Input_Detail_Audit_stock_V2_Request struct {
