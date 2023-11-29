@@ -27,7 +27,7 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 		nama_barang := ""
 		err := con.Select("nama_barang").Where("kode_stock = ? && jumlah >= ?", kode_stock[i], jumlah[i]).Scan(&nama_barang)
 
-		if err.Error != nil {
+		if err.Error != nil || nama_barang == "" {
 			res.Status = http.StatusNotFound
 			res.Message = nama_barang + " out of stock"
 			res.Data = kode_stock[i]
@@ -133,7 +133,7 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 
 		con_gudang := db.CreateConGorm().Table("gudang")
 
-		status := 0
+		status := -1
 
 		err = con_gudang.Select("status_lifo_fifo").Where("kode_gudang=?", Request.Kode_gudang).Scan(&status)
 
@@ -151,9 +151,9 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 		//1 fifo
 		if status == 0 {
 
-			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ? ", kode_stock[i]).Order("tanggal DESC").Scan(&data)
+			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang", "kode").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ? && stock_keluar_masuk.status = 0", kode_stock[i]).Order("tanggal DESC").Scan(&data)
 		} else {
-			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ?", kode_stock[i]).Order("tanggal ASC").Scan(&data)
+			err = con_stock_masuk.Select("stock_keluar_masuk.kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock", "stock_keluar_masuk.tanggal", "b.jumlah_barang", "kode").Joins("JOIN detail_stock b on b.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock = ? && stock_keluar_masuk.status = 0", kode_stock[i]).Order("tanggal ASC").Scan(&data)
 		}
 
 		if err.Error != nil {
@@ -198,15 +198,34 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 
 			data_pengurangan.Co = co + 1
 			data_pengurangan.Kode_pengurangan = "PE-" + strconv.Itoa(data_pengurangan.Co)
-			data_pengurangan.Kode_stock_keluar_masuk = data[i].Kode_stock_keluar_masuk
-			data_pengurangan.Kode_barang_keluar_masuk = data[i].Kode_barang_keluar_masuk
+			data_pengurangan.Kode_stock_keluar_masuk = data[index].Kode_stock_keluar_masuk
+			data_pengurangan.Kode_barang_keluar_masuk = data[index].Kode_barang_keluar_masuk
+			data_pengurangan.Kode_barang_keluar = barang_V2.Kode_barang_keluar_masuk
+			data_pengurangan.Kode_supplier = data[index].Kode
 
-			err = con_pengurangan.Select("co", "kode_pengurangan", "kode_stock_keluar_masuk", "kode_barang_keluar_masuk").Create(&data_pengurangan)
+			err = con_pengurangan.Select("co", "kode_pengurangan", "kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_barang_keluar", "kode_supplier").Create(&data_pengurangan)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound
 				res.Message = "Update gagal"
 				res.Data = barang_V2
+				return res, err.Error
+			}
+
+			status_edit := -1
+
+			con_barang := db.CreateConGorm().Table("barang_stock_keluar_masuk")
+
+			err = con_barang.Select("status").Where("kode_barang_keluar_masuk = ?", data[index].Kode_barang_keluar_masuk).Scan(&status_edit)
+
+			if status_edit == 0 {
+				err = con_barang.Where("kode_barang_keluar_masuk = ?", data[index].Kode_barang_keluar_masuk).Update("status", 1)
+			}
+
+			if err.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = Request
 				return res, err.Error
 			}
 

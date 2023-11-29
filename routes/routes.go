@@ -3,6 +3,7 @@ package routes
 import (
 	"POS-BACKEND/controllers/audit"
 	"POS-BACKEND/controllers/jenis_barang"
+	"POS-BACKEND/controllers/kartu_stock"
 	"POS-BACKEND/controllers/pre_order"
 	"POS-BACKEND/controllers/refund"
 	"POS-BACKEND/controllers/satuan_barang"
@@ -98,10 +99,14 @@ func Init() *echo.Echo {
 	RF.PUT("/update-status", refund.UpdateStatusRefund)
 
 	//Audit
-	AU := e.Group("AU")
+	AU := e.Group("/AU")
 	AU.GET("/audit", audit.ReadAuditStock)
 	AU.POST("/audit", audit.InputAuditStock)
 	AU.GET("/awal-audit", audit.ReadDataAwalAuditStock)
+
+	//Kartu Stock
+	KS := e.Group("/KS")
+	KS.GET("/kartu-stock", kartu_stock.ReadJenisBarang)
 
 	return e
 }
