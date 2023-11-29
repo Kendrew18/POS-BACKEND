@@ -84,9 +84,9 @@ func Delete_Toko(Request request.Delete_Toko_Request) (response.Response, error)
 
 	var barang_stock_keluar []string
 
-	con_keluar := db.CreateConGorm().Table("stock_keluar")
+	con_keluar := db.CreateConGorm().Table("stock_keluar_masuk")
 
-	err := con_keluar.Select("kode_toko").Where("kode_toko =?", Request.Kode_toko).Scan(&barang_stock_keluar).Error
+	err := con_keluar.Select("kode").Where("kode =?", Request.Kode_toko).Scan(&barang_stock_keluar).Error
 
 	if barang_stock_keluar == nil && err == nil {
 		con := db.CreateConGorm().Table("toko")

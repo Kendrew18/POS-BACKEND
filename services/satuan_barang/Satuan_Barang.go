@@ -82,11 +82,18 @@ func Delete_Satuan_Barang(Request request.Delete_Satuan_Barang_Request) (respons
 
 	var satuan_barang []string
 
-	con_masuk := db.CreateConGorm().Table("satuan_barang")
+	con_stock := db.CreateConGorm().Table("stock")
 
-	err := con_masuk.Select("kode_satuan_barang").Where("kode_satuan_barang =?", Request.Kode_satuan_barang).Scan(&satuan_barang).Error
+	err := con_stock.Select("kode_satuan_barang").Where("kode_satuan_barang =?", Request.Kode_satuan_barang).Scan(&satuan_barang).Error
 
-	if satuan_barang == nil && err == nil {
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if satuan_barang == nil {
 		con := db.CreateConGorm().Table("satuan_barang")
 
 		err := con.Where("kode_satuan_barang=?", Request.Kode_satuan_barang).Delete("")
