@@ -32,6 +32,7 @@ type Kode_stock_keluar_masuk struct {
 	Kode_pengurangan         string `json:"kode_pengurangan"`
 	Kode_stock_keluar_masuk  string `json:"Kode_stock_keluar_masuk"`
 	Kode_barang_keluar_masuk string `json:"Kode_barang_keluar_masuk"`
+	Kode_stock_keluar        string `json:"Kode_stock_keluar"`
 	Kode_barang_keluar       string `json:"kode_barang_keluar"`
 	Kode_supplier            string `json:"kode_supplier"`
 }

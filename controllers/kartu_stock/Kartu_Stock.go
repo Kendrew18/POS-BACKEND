@@ -12,7 +12,10 @@ func ReadJenisBarang(c echo.Context) error {
 
 	var Request request.Read_Kartu_Stock_Request
 	Request.Kode_gudang = c.FormValue("kode_gudang")
-	Request.Tanggal = c.FormValue("tanggal")
+	Request.Tanggal_1 = c.FormValue("tanggal_1")
+	Request.Tanggal_2 = c.FormValue("tanggal_2")
+	Request.Kode_supplier = c.FormValue("kode_supplier")
+	Request.Kode_stock = c.FormValue("kode_stock")
 
 	result, err := kartu_stock.Read_Kartu_Stock(Request)
 

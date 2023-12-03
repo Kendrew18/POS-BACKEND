@@ -29,9 +29,14 @@ type Input_Detail_Audit_stock_V2_Request struct {
 	Stock_dalam_sistem float64 `json:"stock_dalam_sistem"`
 	Stock_rill         float64 `json:"stock_rill"`
 	Selisih_stock      float64 `json:"selisih_stock"`
+	Kode_supplier      string  `json:"kode_supplier"`
 }
 
 type Read_Audit_Stock struct {
 	Tanggal     string `json:"Tanggal"`
 	Kode_gudang string `json:"Kode_gudang"`
+}
+
+type Input_Audit_stock_User_Request struct {
+	Kode_user string `json:"kode_user"`
 }

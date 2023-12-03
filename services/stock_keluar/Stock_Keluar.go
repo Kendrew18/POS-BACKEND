@@ -202,8 +202,9 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 			data_pengurangan.Kode_barang_keluar_masuk = data[index].Kode_barang_keluar_masuk
 			data_pengurangan.Kode_barang_keluar = barang_V2.Kode_barang_keluar_masuk
 			data_pengurangan.Kode_supplier = data[index].Kode
+			data_pengurangan.Kode_stock_keluar = Request.Kode_stock_keluar_masuk
 
-			err = con_pengurangan.Select("co", "kode_pengurangan", "kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_barang_keluar", "kode_supplier").Create(&data_pengurangan)
+			err = con_pengurangan.Select("co", "kode_pengurangan", "kode_stock_keluar_masuk", "kode_barang_keluar_masuk", "kode_stock_keluar", "kode_barang_keluar", "kode_supplier").Create(&data_pengurangan)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound
