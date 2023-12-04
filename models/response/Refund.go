@@ -3,7 +3,7 @@ package response
 type Read_Refund_Response struct {
 	Kode_refund          string                        `json:"kode_refund"`
 	Tanggal              string                        `json:"tanggal"`
-	Tanggal_pengambalian string                        `json:"kode_nota"`
+	Tanggal_pengambalian string                        `json:"tanggal_pengembalian"`
 	Nama_supplier        string                        `json:"nama_supplier"`
 	Jumlah_total         float64                       `json:"jumlah_total"`
 	Status               int                           `json:"status"`

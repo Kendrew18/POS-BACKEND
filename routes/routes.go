@@ -2,17 +2,21 @@ package routes
 
 import (
 	"POS-BACKEND/controllers/audit"
+	"POS-BACKEND/controllers/bentuk_retur"
 	"POS-BACKEND/controllers/jenis_barang"
+	"POS-BACKEND/controllers/jenis_pembayaran"
 	"POS-BACKEND/controllers/kartu_stock"
 	"POS-BACKEND/controllers/pre_order"
 	"POS-BACKEND/controllers/refund"
 	"POS-BACKEND/controllers/satuan_barang"
+	"POS-BACKEND/controllers/satuan_kasir"
 	"POS-BACKEND/controllers/stock"
 	"POS-BACKEND/controllers/stock_keluar"
 	"POS-BACKEND/controllers/stock_masuk"
 	"POS-BACKEND/controllers/supplier"
 	"POS-BACKEND/controllers/toko"
 	"POS-BACKEND/controllers/user"
+	"POS-BACKEND/controllers/user_management"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -108,6 +112,31 @@ func Init() *echo.Echo {
 	//Kartu Stock
 	KS := e.Group("/KS")
 	KS.GET("/kartu-stock", kartu_stock.ReadJenisBarang)
+
+	//KASIR
+
+	//Satuan_Kasir
+	SAT := e.Group("/SAT")
+	SAT.POST("/satuan-kasir", satuan_kasir.InputSatuanKasir)
+	SAT.GET("/satuan-kasir", satuan_kasir.ReadSatuanKasir)
+	SAT.DELETE("/satuan-kasir", satuan_kasir.DeleteSatuanKasir)
+
+	//Bentuk_Retur
+	BR := e.Group("/BR")
+	BR.POST("/bentuk-retur", bentuk_retur.InputSatuanKasir)
+	BR.GET("/bentuk-retur", bentuk_retur.ReadBentukRetur)
+
+	//User_Management
+	USM := e.Group("/USM")
+	USM.POST("/user-management", user_management.InputUserManagement)
+	USM.GET("/user-management", user_management.ReadUserManagement)
+
+	//Jenis_Pembayaran
+	JP := e.Group("/JP")
+	JP.POST("/jenis-pembayaran", jenis_pembayaran.InputJenisPembayaran)
+	JP.GET("/jenis-pembayaran", jenis_pembayaran.ReadJenisPembayaran)
+
+	//Gudang
 
 	return e
 }
