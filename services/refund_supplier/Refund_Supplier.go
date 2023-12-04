@@ -192,7 +192,7 @@ func Update_Barang_Refund(Request request.Update_Refund_Request, Request_Barang 
 	check := -1
 	con_check := db.CreateConGorm().Table("refund")
 
-	err := con_check.Select("status").Joins("JOIN barang_refund br ON br.kode_refund = refund.kode_refund ").Where("kode_barang_refuns = ?", Request.Kode_barang_refund).Scan(&check)
+	err := con_check.Select("status").Joins("JOIN barang_refund br ON br.kode_refund = refund.kode_refund ").Where("kode_barang_refund = ?", Request.Kode_barang_refund).Scan(&check)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -201,7 +201,7 @@ func Update_Barang_Refund(Request request.Update_Refund_Request, Request_Barang 
 		return res, err.Error
 	}
 
-	if check == 0 {
+	if check == 0 || check == 2 {
 
 		con := db.CreateConGorm().Table("barang_refund")
 
