@@ -91,8 +91,6 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 			return res, err.Error
 		}
 
-		fmt.Println(read_sup)
-
 	}
 
 	var data response.Kartu_Stock_Response
@@ -102,8 +100,6 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 	con_stock_raw := db.CreateConGorm().Table("stock_keluar_masuk")
 
 	err := con_stock_raw.Select("kode_stock_keluar_masuk", "tanggal", "kode").Where("kode_gudang = ? && (tanggal >=? && tanggal <=?)", Request.Kode_gudang, Request.Tanggal_1, Request.Tanggal_2).Order("tanggal ASC").Scan(&raw_data)
-
-	fmt.Println(raw_data)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -127,7 +123,7 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 
 			if strings.HasPrefix(raw_data[i].Kode_stock_keluar_masuk, "SM") {
 				con_stock_raw := db.CreateConGorm().Table("stock_keluar_masuk")
-				err = con_stock_raw.Select("tanggal", "jumlah_barang").Joins("JOIN barang_stock_keluar_masuk bskm ON stock_keluar_masuk.kode_stock_keluar_masuk = bskm.kode_stock_keluar_masuk").Where("kode_stock_keluar_masuk = ? && kode =? && kode_stock = ? ", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Order("tanggal ASC").Scan(&detail_raw)
+				err = con_stock_raw.Select("DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "jumlah_barang").Joins("JOIN barang_stock_keluar_masuk bskm ON stock_keluar_masuk.kode_stock_keluar_masuk = bskm.kode_stock_keluar_masuk").Where("stock_keluar_masuk.kode_stock_keluar_masuk = ? && kode =? && kode_stock = ? ", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Order("tanggal ASC").Scan(&detail_raw)
 
 				if err.Error != nil {
 					res.Status = http.StatusNotFound
@@ -145,8 +141,8 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 
 			} else if strings.HasPrefix(raw_data[i].Kode_stock_keluar_masuk, "SK") {
 
-				con_stock_raw := db.CreateConGorm().Table("pegurangan_stock")
-				err = con_stock_raw.Select("jumlah_barang").Joins("JOIN barang_stock_keluar_masuk bskm ON pegurangan_stock.kode_barang_keluar = bskm.kode_barang_keluar_masuk").Where("kode_stock_keluar = ? && kode_supplier = ? && kode_stock = ? ", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Order("tanggal ASC").Scan(&detail_raw)
+				con_stock_raw := db.CreateConGorm().Table("pengurangan_stock")
+				err = con_stock_raw.Select("jumlah_barang").Joins("JOIN barang_stock_keluar_masuk bskm ON pengurangan_stock.kode_barang_keluar = bskm.kode_barang_keluar_masuk").Where("kode_stock_keluar = ? && kode_supplier = ? && kode_stock = ? ", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Scan(&detail_raw)
 
 				if err.Error != nil {
 					res.Status = http.StatusNotFound
@@ -156,7 +152,8 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 				}
 
 				for x := 0; x < len(detail_raw); x++ {
-					detail_raw[x].Tanggal = raw_data[i].Tanggal
+					date, _ := time.Parse("2006-01-02", raw_data[i].Tanggal)
+					detail_raw[x].Tanggal = date.Format("02-01-2006")
 					detail_raw[x].Keterangan = "KELUAR"
 					total_keluar = total_keluar + detail_raw[x].Jumlah_barang
 					sisa = sisa - detail_raw[x].Jumlah_barang
@@ -164,8 +161,11 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 				}
 
 			} else if strings.HasPrefix(raw_data[i].Kode_stock_keluar_masuk, "AU") {
+				var detail_raw_single response.Detail_Kartu_Stock_Response
+				var audit_raw []response.Audit_RAW_response
 				con_stock_raw := db.CreateConGorm().Table("audit")
-				err = con_stock_raw.Select("jumlah_rill AS jumlah_barang").Joins("JOIN detail_audit da ON da.kode_audit=audit.kode_audit").Where("audit.kode_audit = ? && kode_supplier = ? && kode_stock = ?", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Order("tanggal ASC").Scan(&detail_raw)
+
+				err = con_stock_raw.Select("stock_dalam_sistem, stock_rill").Joins("JOIN detail_audit da ON da.kode_audit=audit.kode_audit").Where("audit.kode_audit = ? && kode_supplier = ? && kode_stock = ?", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Scan(&audit_raw)
 
 				if err.Error != nil {
 					res.Status = http.StatusNotFound
@@ -174,14 +174,36 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 					return res, err.Error
 				}
 
-				for x := 0; x < len(detail_raw); x++ {
-					detail_raw[x].Tanggal = raw_data[i].Tanggal
-					detail_raw[x].Keterangan = "AUDIT"
-					total_masuk = total_masuk + detail_raw[x].Jumlah_barang
-					sisa = sisa - detail_raw[x].Jumlah_barang
-					detail_raw[x].Sisa = sisa
+				selisih := 0.0
+				for y := 0; y < len(audit_raw); y++ {
+					selisih = selisih + (audit_raw[y].Stock_rill - audit_raw[y].Stock_dalam_sistem)
+				}
+
+				detail_raw_single.Tanggal = raw_data[i].Tanggal
+				detail_raw_single.Jumlah_barang = selisih
+
+				if selisih > 0.0 {
+					detail_raw_single.Keterangan = "AUDIT MASUK"
+					total_masuk = total_masuk + detail_raw_single.Jumlah_barang
+					sisa = sisa + detail_raw_single.Jumlah_barang
+
+				} else if selisih == 0.0 {
+
+					detail_raw_single.Keterangan = "AUDIT"
+					total_masuk = total_masuk + detail_raw_single.Jumlah_barang
+					sisa = sisa - detail_raw_single.Jumlah_barang
+
+				} else if selisih < 0.0 {
+
+					detail_raw_single.Keterangan = "AUDIT KELUAR"
+					total_keluar = total_masuk + detail_raw_single.Jumlah_barang
+					sisa = sisa - detail_raw_single.Jumlah_barang
 
 				}
+
+				detail_raw_single.Sisa = sisa
+
+				detail_raw = append(detail_raw, detail_raw_single)
 			}
 
 			if len(detail_raw) > 0 {
@@ -197,6 +219,17 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 			read_kartu_stock = append(read_kartu_stock, data)
 		}
 
+	}
+
+	if read_kartu_stock == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = read_kartu_stock
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = read_kartu_stock
 	}
 
 	return res, nil

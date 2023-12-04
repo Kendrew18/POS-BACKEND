@@ -54,6 +54,7 @@ func Init() *echo.Echo {
 	ST.GET("/stock", stock.ReadStock)
 	ST.GET("/detail-stock", stock.Detailstock)
 	ST.GET("/dropdown-stock", stock.DropdownStock)
+	ST.GET("/dropdown-stock-nota", stock.DropdownStockKodeNota)
 
 	//Supplier
 	SP := e.Group("/SP")

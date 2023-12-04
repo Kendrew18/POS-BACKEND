@@ -334,3 +334,31 @@ func Dropdown_Stock(Request request.Dropdown_Stock_Request) (response.Response, 
 	}
 	return res, nil
 }
+
+func Dropdown_Stock_Kode_Nota(Request request.Dropdown_Stock_Kode_Nota_Request) (response.Response, error) {
+	var res response.Response
+	var data []response.Dropdown_Nama_Barang_Response
+
+	con := db.CreateConGorm().Table("stock_keluar_masuk")
+
+	err := con.Select("stock.kode_stock", "nama_barang").Joins("JOIN detail_stock bskm ON stock_keluar_masuk.kode_stock_keluar_masuk = bskm.kode_stock_keluar_masuk").Joins("JOIN stock on stock.kode_stock = bskm.kode_stock").Where("kode_nota = ? && stock_keluar_masuk.kode_gudang = ? && stock_keluar_masuk.kode = ? && jumlah_barang > 0", Request.Kode_nota, Request.Kode_gudang, Request.Kode_supplier).Scan(&data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	if data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = data
+	}
+	return res, nil
+}

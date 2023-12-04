@@ -39,3 +39,9 @@ type Read_Detail_Stock struct {
 type Dropdown_Stock_Request struct {
 	Kode_gudang string `json:"kode_gudang"`
 }
+
+type Dropdown_Stock_Kode_Nota_Request struct {
+	Kode_supplier string `json:"kode_supplier"`
+	Kode_nota     string `json:"kode_nota"`
+	Kode_gudang   string `json:"kode_gudang"`
+}

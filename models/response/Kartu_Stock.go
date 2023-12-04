@@ -27,3 +27,8 @@ type Detail_Kartu_Stock_Response struct {
 	Jumlah_barang float64 `json:"jumlah_barang"`
 	Sisa          float64 `json:"sisa"`
 }
+
+type Audit_RAW_response struct {
+	Stock_rill         float64 `json:"stock_rill"`
+	Stock_dalam_sistem float64 `json:"stock_dalam_sistem"`
+}
