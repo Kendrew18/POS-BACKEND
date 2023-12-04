@@ -238,7 +238,7 @@ func Delete_Barang_Refund(Request request.Update_Refund_Request) (response.Respo
 	check := -1
 	con_check := db.CreateConGorm().Table("refund")
 
-	err := con_check.Select("status").Joins("JOIN barang_refund br ON br.kode_barang_refund = refund.kode_barang_refund ").Where("kode_barang_refund = ?", Request.Kode_barang_refund).Scan(&check)
+	err := con_check.Select("status").Joins("JOIN barang_refund br ON br.kode_refund = refund.kode_refund ").Where("br.kode_barang_refund = ?", Request.Kode_barang_refund).Scan(&check)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -246,13 +246,17 @@ func Delete_Barang_Refund(Request request.Update_Refund_Request) (response.Respo
 		res.Data = Request
 		return res, err.Error
 	}
+
+	fmt.Println(check)
+	fmt.Println(Request)
+
 	if check == 0 {
 
 		con := db.CreateConGorm().Table("refund")
 
 		data := ""
 
-		err = con.Select("kode_refund").Where("kode_barang_refund=?", Request.Kode_barang_refund).Scan(&data)
+		err = con.Select("refund.kode_refund").Joins("JOIN barang_refund br ON br.kode_refund = refund.kode_refund ").Where("kode_barang_refund=?", Request.Kode_barang_refund).Scan(&data)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -274,7 +278,9 @@ func Delete_Barang_Refund(Request request.Update_Refund_Request) (response.Respo
 
 		kode_barang := ""
 
-		err = con_barang.Select("kode_barang_refund").Where("kode_refund=?", data).Limit(1).Scan(&kode_barang)
+		con_barang2 := db.CreateConGorm().Table("barang_refund")
+
+		err = con_barang2.Select("kode_barang_refund").Where("kode_refund=?", data).Limit(1).Scan(&kode_barang)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -285,7 +291,9 @@ func Delete_Barang_Refund(Request request.Update_Refund_Request) (response.Respo
 
 		if kode_barang == "" {
 
-			err = con.Where("kode_refund = ?", Request.Kode_barang_refund).Delete("")
+			con_refund := db.CreateConGorm().Table("refund")
+
+			err = con_refund.Where("kode_refund = ?", data).Delete("")
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound
