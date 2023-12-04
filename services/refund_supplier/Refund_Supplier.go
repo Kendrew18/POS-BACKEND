@@ -4,8 +4,8 @@ import (
 	"POS-BACKEND/db"
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/models/response"
-
 	"POS-BACKEND/services/stock_keluar"
+
 	"POS-BACKEND/tools"
 	"database/sql"
 	"fmt"
@@ -117,14 +117,22 @@ func Read_Refund(Request request.Read_Refund_Request, Request_filter request.Rea
 	statement := "SELECT refund.kode_refund, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, DATE_FORMAT(tanggal_pengembalian, '%d-%m-%Y') AS tanggal_pengembalian, nama_supplier, sum(jumlah), status FROM refund JOIN supplier s ON s.kode_supplier = refund.kode_supplier JOIN barang_refund br ON br.kode_refund = refund.kode_refund WHERE refund.kode_gudang = '" + Request.Kode_gudang + "'"
 
 	if Request_filter.Kode_supplier != "" {
-		statement += " AND refund.kode_supplier = '" + Request_filter.Kode_supplier + "'"
+		statement += " && refund.kode_supplier = '" + Request_filter.Kode_supplier + "'"
 	}
 
 	if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" {
 
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		Request_filter.Tanggal_1 = date.Format("2006-01-02")
+		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
+		Request_filter.Tanggal_1 = date2.Format("2006-01-02")
+
 		statement += " AND (tanggal >= '" + Request_filter.Tanggal_1 + "'" + " && tanggal <= '" + Request_filter.Tanggal_2 + "' )"
 
 	} else if Request_filter.Tanggal_1 != "" {
+
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		Request_filter.Tanggal_1 = date.Format("2006-01-02")
 
 		statement += " && tanggal = '" + Request_filter.Tanggal_1 + "'"
 
@@ -424,11 +432,10 @@ func Update_Status_Refund(Request request.Update_Status_Refund_Request, Request_
 				return res, err2
 			}
 
-			kode_stock := ""
-			jumlah_barang := ""
-			harga := ""
-
 			for rows.Next() {
+				kode_stock := ""
+				jumlah_barang := ""
+				harga := ""
 				var data request.Move_Refund_To_Stock_Keluar_Request
 				err2 = rows.Scan(&Request_Input_stock.Kode_nota, &data.Kode_stock, &data.Jumlah_barang)
 				fmt.Println(Request_Input_stock)
