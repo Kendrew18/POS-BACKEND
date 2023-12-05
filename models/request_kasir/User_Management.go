@@ -6,3 +6,7 @@ type Input_User_Management_Request struct {
 	Nama_store           string `json:"nama_store"`
 	Kode_kasir           string `json:"kode_kasir"`
 }
+
+type Read_User_Management_Request struct {
+	Kode_kasir string `json:"kode_kasir"`
+}
