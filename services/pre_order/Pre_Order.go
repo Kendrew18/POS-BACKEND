@@ -119,14 +119,23 @@ func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter reque
 	statement := "SELECT pre_order.kode_pre_order, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, kode_nota, nama_supplier, nama_penanggung_jawab, sum(jumlah_barang), sum(total_harga), status FROM pre_order JOIN supplier s ON s.kode_supplier = pre_order.kode_supplier JOIN barang_pre_order bpo ON bpo.kode_pre_order = pre_order.kode_pre_order WHERE pre_order.kode_gudang = '" + Request.Kode_gudang + "'"
 
 	if Request_filter.Kode_supplier != "" {
-		statement += " AND kode_supplier = '" + Request_filter.Kode_supplier + "'"
+		statement += " && pre_order.kode_supplier = '" + Request_filter.Kode_supplier + "'"
 	}
 
 	if Request_filter.Tanggal_1 != "" && Request_filter.Tanggal_2 != "" {
 
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		Request_filter.Tanggal_1 = date.Format("2006-01-02")
+
+		date2, _ := time.Parse("02-01-2006", Request_filter.Tanggal_2)
+		Request_filter.Tanggal_2 = date2.Format("2006-01-02")
+
 		statement += " AND (tanggal >= '" + Request_filter.Tanggal_1 + "' && tanggal <= '" + Request_filter.Tanggal_2 + "' )"
 
 	} else if Request_filter.Tanggal_1 != "" {
+
+		date, _ := time.Parse("02-01-2006", Request_filter.Tanggal_1)
+		Request_filter.Tanggal_1 = date.Format("2006-01-02")
 
 		statement += " && tanggal = '" + Request_filter.Tanggal_1 + "'"
 
@@ -147,7 +156,7 @@ func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter reque
 
 	for rows.Next() {
 
-		err = rows.Scan(&data.Kode_pre_order, &data.Tanggal, &data.Kode_nota, &data.Penanggung_jawab, &data.Nama_supplier, &data.Jumlah_total, &data.Total_harga, &data.Status)
+		err = rows.Scan(&data.Kode_pre_order, &data.Tanggal, &data.Kode_nota, &data.Nama_supplier, &data.Penanggung_jawab, &data.Jumlah_total, &data.Total_harga, &data.Status)
 
 		if err != nil {
 			res.Status = http.StatusNotFound
