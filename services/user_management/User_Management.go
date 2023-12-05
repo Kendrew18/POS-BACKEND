@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func Input_User_Management(Request request_kasir.Input_User_Management) (response_kasir.Response, error) {
+func Input_User_Management(Request request_kasir.Input_User_Management_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
 
@@ -28,7 +28,7 @@ func Input_User_Management(Request request_kasir.Input_User_Management) (respons
 		return res, err.Error
 	}
 
-	err = con.Select("co", "kode_user_management", "nama_store").Create(&Request)
+	err = con.Select("co", "kode_user_management", "nama_store", "kode_kasir").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -46,14 +46,14 @@ func Input_User_Management(Request request_kasir.Input_User_Management) (respons
 	return res, nil
 }
 
-func Read_User_Management() (response_kasir.Response, error) {
+func Read_User_Management(Request request_kasir.Read_User_Management_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
 	var data []response_kasir.Read_User_Management_Response
 
 	con := db.CreateConGorm().Table("user_management")
 
-	err := con.Select("kode_userma", "nama_satuan").Order("co ASC").Scan(&data).Error
+	err := con.Select("kode_user_management", "nama_user_management").Where("kode_kasir = ?", Request.Kode_kasir).Order("co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

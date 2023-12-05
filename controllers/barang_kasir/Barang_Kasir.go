@@ -1,21 +1,22 @@
-package bentuk_retur
+package barang_kasir
 
 import (
 	"POS-BACKEND/models/request_kasir"
-	"POS-BACKEND/services/bentuk_retur"
-
+	"POS-BACKEND/services/barang_kasir"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-func InputBentukRetur(c echo.Context) error {
+func InputBarangKasir(c echo.Context) error {
 
-	var Request request_kasir.Input_Bentuk_Retur_Request
-	Request.Nama_bentuk_retur = c.FormValue("nama_bentuk_retur")
+	var Request request_kasir.Input_Barang_Kasir_Request
+	Request.Nama_barang_kasir = c.FormValue("nama_barang_kasir")
+	Request.Kode_satuan = c.FormValue("kode_satuan")
+	Request.Jumlah_pengali = c.FormValue("jumlah_pengali")
 	Request.Kode_kasir = c.FormValue("kode_kasir")
 
-	result, err := bentuk_retur.Input_Bentuk_Retur(Request)
+	result, err := barang_kasir.Input_Barang_Kasir(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
@@ -25,12 +26,12 @@ func InputBentukRetur(c echo.Context) error {
 
 }
 
-func ReadBentukRetur(c echo.Context) error {
+func ReadBarangKasir(c echo.Context) error {
 
 	var Request request_kasir.Read_Barang_Kasir_Request
 	Request.Kode_kasir = c.FormValue("kode_kasir")
 
-	result, err := bentuk_retur.Read_Bentuk_Retur(Request)
+	result, err := barang_kasir.Read_Barang_Kasir(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

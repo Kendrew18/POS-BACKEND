@@ -2,6 +2,7 @@ package routes
 
 import (
 	"POS-BACKEND/controllers/audit"
+	"POS-BACKEND/controllers/barang_kasir"
 	"POS-BACKEND/controllers/bentuk_retur"
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/jenis_pembayaran"
@@ -123,7 +124,7 @@ func Init() *echo.Echo {
 
 	//Bentuk_Retur
 	BR := e.Group("/BR")
-	BR.POST("/bentuk-retur", bentuk_retur.InputSatuanKasir)
+	BR.POST("/bentuk-retur", bentuk_retur.InputBentukRetur)
 	BR.GET("/bentuk-retur", bentuk_retur.ReadBentukRetur)
 
 	//User_Management
@@ -137,6 +138,11 @@ func Init() *echo.Echo {
 	JP.GET("/jenis-pembayaran", jenis_pembayaran.ReadJenisPembayaran)
 
 	//Gudang
+
+	//Barang_Kasir
+	BK := e.Group("/BK")
+	BK.POST("/barang-kasir", barang_kasir.InputBarangKasir)
+	BK.GET("/barang-kasir", barang_kasir.ReadBarangKasir)
 
 	return e
 }

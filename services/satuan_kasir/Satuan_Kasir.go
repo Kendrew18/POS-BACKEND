@@ -28,7 +28,7 @@ func Input_Satuan_Kasir(Request request_kasir.Input_Satuan_Kasir_Request) (respo
 		return res, err.Error
 	}
 
-	err = con.Select("co", "kode_satuan", "nama_satuan").Create(&Request)
+	err = con.Select("co", "kode_satuan", "nama_satuan", "kode_kasir").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -46,14 +46,14 @@ func Input_Satuan_Kasir(Request request_kasir.Input_Satuan_Kasir_Request) (respo
 	return res, nil
 }
 
-func Read_Satuan_Barang() (response_kasir.Response, error) {
+func Read_Satuan_Barang(Request request_kasir.Read_Satuan_Kasir_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
 	var data []response_kasir.Read_Satuan_Kasir_Response
 
 	con := db.CreateConGorm().Table("satuan_kasir")
 
-	err := con.Select("kode_satuan", "nama_satuan").Order("co ASC").Scan(&data).Error
+	err := con.Select("kode_satuan", "nama_satuan").Where("kode_kasir = ?", Request.Kode_kasir).Order("co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

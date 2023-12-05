@@ -12,6 +12,7 @@ func InputSatuanKasir(c echo.Context) error {
 
 	var Request request_kasir.Input_Satuan_Kasir_Request
 	Request.Nama_satuan = c.FormValue("nama_satuan")
+	Request.Kode_kasir = c.FormValue("kode_kasir")
 
 	result, err := satuan_kasir.Input_Satuan_Kasir(Request)
 
@@ -24,7 +25,10 @@ func InputSatuanKasir(c echo.Context) error {
 
 func ReadSatuanKasir(c echo.Context) error {
 
-	result, err := satuan_kasir.Read_Satuan_Barang()
+	var Request request_kasir.Read_Satuan_Kasir_Request
+	Request.Kode_kasir = c.FormValue("kode_kasir")
+
+	result, err := satuan_kasir.Read_Satuan_Barang(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

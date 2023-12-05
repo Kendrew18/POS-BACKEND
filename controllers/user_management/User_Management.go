@@ -10,8 +10,9 @@ import (
 
 func InputUserManagement(c echo.Context) error {
 
-	var Request request_kasir.Input_User_Management
+	var Request request_kasir.Input_User_Management_Request
 	Request.Nama_store = c.FormValue("nama_store")
+	Request.Kode_kasir = c.FormValue("kode_kasir")
 
 	result, err := user_management.Input_User_Management(Request)
 
@@ -23,8 +24,10 @@ func InputUserManagement(c echo.Context) error {
 }
 
 func ReadUserManagement(c echo.Context) error {
+	var Request request_kasir.Read_User_Management_Request
+	Request.Kode_kasir = c.FormValue("kode_kasir")
 
-	result, err := user_management.Read_User_Management()
+	result, err := user_management.Read_User_Management(Request)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

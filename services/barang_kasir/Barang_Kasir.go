@@ -1,4 +1,4 @@
-package jenis_pembayaran
+package barang_kasir
 
 import (
 	"POS-BACKEND/db"
@@ -8,18 +8,18 @@ import (
 	"strconv"
 )
 
-func Input_Jenis_Pembayaran(Request request_kasir.Input_Jenis_Pembayaran_Request) (response_kasir.Response, error) {
+func Input_Barang_Kasir(Request request_kasir.Input_Barang_Kasir_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
 
-	con := db.CreateConGorm().Table("jenis_pembayaran")
+	con := db.CreateConGorm().Table("barang_kasir")
 
 	co := 0
 
 	err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	Request.Co = co + 1
-	Request.Kode_jenis_pembayaran = "JP-" + strconv.Itoa(Request.Co)
+	Request.Kode_barang_kasir = "BK-" + strconv.Itoa(Request.Co)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -28,7 +28,7 @@ func Input_Jenis_Pembayaran(Request request_kasir.Input_Jenis_Pembayaran_Request
 		return res, err.Error
 	}
 
-	err = con.Select("co", "kode_jenis_pembayaran", "nama_jenis_pembayaran", "kode_kasir").Create(&Request)
+	err = con.Select("co", "kode_barang_kasir", "nama_barang_kasir", "kode_satuan", "jumlah_pengali", "kode_kasir").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -46,14 +46,14 @@ func Input_Jenis_Pembayaran(Request request_kasir.Input_Jenis_Pembayaran_Request
 	return res, nil
 }
 
-func Read_Jenis_Pembayaran(Request request_kasir.Read_Jenis_Pembayaran_Request) (response_kasir.Response, error) {
+func Read_Barang_Kasir(Request request_kasir.Read_Barang_Kasir_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
-	var data []response_kasir.Read_Jenis_Pembayaran_Response
+	var data []response_kasir.Read_Barang_Kasir_Response
 
-	con := db.CreateConGorm().Table("jenis_pembayaran")
+	con := db.CreateConGorm().Table("barang_kasir")
 
-	err := con.Select("kode_jenis_pembayaran", "nama_jenis_pembayaran").Where("kode_kasir = ?", Request.Kode_kasir).Order("co ASC").Scan(&data).Error
+	err := con.Select("kode_barang_kasir", "nama_barang_kasir", "nama_satuan", "jumlah_pengali").Joins("JOIN satuan_kasir sk ON sk.kode_satuan = barang_kasir.kode_satuan").Where("kode_kasir = ?").Order("co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound
