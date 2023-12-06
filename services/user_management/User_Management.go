@@ -19,7 +19,7 @@ func Input_User_Management(Request request_kasir.Input_User_Management_Request) 
 	err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	Request.Co = co + 1
-	Request.Kode_user_management = "USM-" + strconv.Itoa(Request.Co)
+	Request.Kode_store = "USM-" + strconv.Itoa(Request.Co)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -28,7 +28,7 @@ func Input_User_Management(Request request_kasir.Input_User_Management_Request) 
 		return res, err.Error
 	}
 
-	err = con.Select("co", "kode_user_management", "nama_store", "kode_kasir").Create(&Request)
+	err = con.Select("co", "kode_store", "nama_store", "kode_kasir").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -53,7 +53,7 @@ func Read_User_Management(Request request_kasir.Read_User_Management_Request) (r
 
 	con := db.CreateConGorm().Table("user_management")
 
-	err := con.Select("kode_user_management", "nama_user_management").Where("kode_kasir = ?", Request.Kode_kasir).Order("co ASC").Scan(&data).Error
+	err := con.Select("kode_store", "nama_store").Where("kode_kasir = ?", Request.Kode_kasir).Order("co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

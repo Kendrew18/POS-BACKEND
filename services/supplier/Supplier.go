@@ -175,14 +175,19 @@ func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response
 
 	var supplier []string
 
-	con_masuk := db.CreateConGorm().Table("stock_masuk")
+	con_masuk := db.CreateConGorm().Table("stock_keluar_masuk")
 
-	err := con_masuk.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&supplier).Error
+	err := con_masuk.Select("kode").Where("kode = ?", Request.Kode_supplier).Scan(&supplier).Error
 
 	if supplier == nil && err == nil {
-		con := db.CreateConGorm().Table("satuan_barang")
 
-		err := con.Where("kode_satuan_barang=?", Request.Kode_supplier).Delete("")
+		con_barang := db.CreateConGorm().Table("barang_supplier")
+
+		err := con_barang.Where("kode_supplier=?", Request.Kode_supplier).Delete("")
+
+		con := db.CreateConGorm().Table("supplier")
+
+		err = con.Where("kode_supplier=?", Request.Kode_supplier).Delete("")
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound

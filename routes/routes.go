@@ -4,6 +4,7 @@ import (
 	"POS-BACKEND/controllers/audit"
 	"POS-BACKEND/controllers/barang_kasir"
 	"POS-BACKEND/controllers/bentuk_retur"
+	"POS-BACKEND/controllers/gudang_kasir"
 	"POS-BACKEND/controllers/jenis_barang"
 	"POS-BACKEND/controllers/jenis_pembayaran"
 	"POS-BACKEND/controllers/kartu_stock"
@@ -138,6 +139,9 @@ func Init() *echo.Echo {
 	JP.GET("/jenis-pembayaran", jenis_pembayaran.ReadJenisPembayaran)
 
 	//Gudang
+	GK := e.Group("/GK")
+	GK.GET("/gudang-kasir", gudang_kasir.ReadGudangKasir)
+	GK.POST("/gudang-kasir", gudang_kasir.InputGudangKasir)
 
 	//Barang_Kasir
 	BK := e.Group("/BK")

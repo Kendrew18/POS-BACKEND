@@ -1,9 +1,11 @@
-package pre_order
+package request_barang_kasir
 
 import (
 	"POS-BACKEND/db"
 	"POS-BACKEND/models/request"
+	"POS-BACKEND/models/request_kasir"
 	"POS-BACKEND/models/response"
+	"POS-BACKEND/models/response_kasir"
 	"POS-BACKEND/services/stock_masuk"
 	"POS-BACKEND/tools"
 	"database/sql"
@@ -14,18 +16,18 @@ import (
 	"time"
 )
 
-func Input_Pre_Order(Request request.Input_Pre_Order_Request, Request_Barang request.Input_Barang_Pre_Order_Request) (response.Response, error) {
+func Input_Request_Barang_Kasir(Request request_kasir.Input_Request_Barang_Kasir_Request, Request_Barang request_kasir.Input_Barang_Request) (response_kasir.Response, error) {
 
-	var res response.Response
+	var res response_kasir.Response
 
-	con := db.CreateConGorm().Table("pre_order")
+	con := db.CreateConGorm().Table("request_barang_kasir")
 
 	co := 0
 
 	err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	Request.Co = co + 1
-	Request.Kode_pre_order = "PO-" + strconv.Itoa(Request.Co)
+	Request.Kode_request_barang_kasir = "RBK-" + strconv.Itoa(Request.Co)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -35,31 +37,31 @@ func Input_Pre_Order(Request request.Input_Pre_Order_Request, Request_Barang req
 	}
 
 	//0 = pending
-	//1 = success
-	//2 = ditolak
+	//1 = proses
+	//2 = dikirim
+	//3 = ditolak
 
-	date, _ := time.Parse("02-01-2006", Request.Tanggal)
-	Request.Tanggal = date.Format("2006-01-02")
+	date, _ := time.Parse("02-01-2006", Request.Tanggal_request)
+	Request.Tanggal_request = date.Format("2006-01-02")
 	Request.Status = 0
 
-	err = con.Select("co", "kode_pre_order", "tanggal", "kode_nota", "nama_penanggung_jawab", "kode_supplier", "kode_gudang", "status").Create(&Request)
+	err = con.Select("co", "kode_request_barang_kasir", "tanggal_request", "kode_gudang", "kode_store", "status").Create(&Request)
 
-	kode_stock := tools.String_Separator_To_String(Request_Barang.Kode_stock)
-	Jumlah_barang := tools.String_Separator_To_float64(Request_Barang.Jumlah_barang)
-	harga_pokok := tools.String_Separator_To_Int64(Request_Barang.Harga_pokok)
-	tgl_kadaluarsa := tools.String_Separator_To_String(Request_Barang.Tanggal_kadalurasa)
+	kode_stock := tools.String_Separator_To_String(Request_Barang.Kode_stock_gudang)
+	Jumlah := tools.String_Separator_To_float64(Request_Barang.Jumlah)
+	kode_barang_kasir := tools.String_Separator_To_String(Request_Barang.Kode_barang_kasir)
 
 	for i := 0; i < len(kode_stock); i++ {
-		var barang_V2 request.Input_Barang_Pre_Order_V2_Request
+		var barang_V2 request_kasir.Input_Barang_Request_V2
 
-		con_barang := db.CreateConGorm().Table("barang_pre_order")
+		con_barang := db.CreateConGorm().Table("barang_request_barang_kasir")
 
 		co := 0
 
 		err := con_barang.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		barang_V2.Co = co + 1
-		barang_V2.Kode_barang_pre_order = "BPO-" + strconv.Itoa(barang_V2.Co)
+		barang_V2.Kode_barang_request = "BRB-" + strconv.Itoa(barang_V2.Co)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -68,19 +70,14 @@ func Input_Pre_Order(Request request.Input_Pre_Order_Request, Request_Barang req
 			return res, err.Error
 		}
 
-		barang_V2.Kode_pre_order = Request.Kode_pre_order
-		barang_V2.Kode_stock = kode_stock[i]
-		barang_V2.Jumlah_barang = Jumlah_barang[i]
-		barang_V2.Harga = harga_pokok[i]
-		barang_V2.Total_harga = int64(math.Round(float64(harga_pokok[i]) * Jumlah_barang[i]))
+		barang_V2.Kode_request_barang_kasir = Request.Kode_request_barang_kasir
+		barang_V2.Kode_stock_gudang = kode_stock[i]
+		barang_V2.Jumlah = Jumlah[i]
+		barang_V2.Kode_barang_kasir = kode_barang_kasir[i]
 
-		date3, _ := time.Parse("02-01-2006", tgl_kadaluarsa[i])
-		barang_V2.Tanggal_kadaluarsa = date3.Format("2006-01-02")
-
-		fmt.Println(barang_V2.Tanggal_kadaluarsa)
 		fmt.Println(barang_V2)
 
-		err = con_barang.Select("co", "kode_barang_pre_order", "kode_stock", "kode_pre_order", "tanggal_kadaluarsa", "jumlah_barang", "harga", "total_harga").Create(&barang_V2)
+		err = con_barang.Select("co", "kode_barang_request", "kode_request_barang_kasir", "kode_stock_gudang", "jumlah", "kode_barang_kasir").Create(&barang_V2)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -106,7 +103,7 @@ func Input_Pre_Order(Request request.Input_Pre_Order_Request, Request_Barang req
 	return res, nil
 }
 
-func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter request.Read_Pre_Order_Filter_Request) (response.Response, error) {
+func Read_Request_Barang_Kasir(Request request.Read_Pre_Order_Request, Request_filter request.Read_Pre_Order_Filter_Request) (response.Response, error) {
 
 	var res response.Response
 	var arr_data []response.Read_Pre_Order_Response
@@ -263,9 +260,7 @@ func Delete_Pre_Order(Request request.Update_Pre_Order_Kode_Request) (response.R
 
 		data := ""
 
-		err = con.Select("pre_order.kode_pre_order").Joins("JOIN barang_pre_order bpo ON bpo.kode_pre_order = pre_order.kode_pre_order ").Where("kode_barang_pre_order = ?", Request.Kode_barang_pre_order).Scan(&data)
-
-		fmt.Println(data)
+		err = con.Select("kode_pre_order").Where("kode_barang_pre_order=?", Request.Kode_barang_pre_order).Scan(&data)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -280,13 +275,9 @@ func Delete_Pre_Order(Request request.Update_Pre_Order_Kode_Request) (response.R
 
 		kode_barang := ""
 
-		con_barang_check := db.CreateConGorm().Table("barang_pre_order")
+		err = con_barang.Select("kode_barang_pre_order").Where("kode_pre_order=?", data).Limit(1).Scan(&kode_barang)
 
-		err = con_barang_check.Select("kode_barang_pre_order").Where("kode_pre_order=?", data).Limit(1).Scan(&kode_barang)
-
-		fmt.Println(kode_barang)
 		if kode_barang == "" {
-			fmt.Println("masuk")
 
 			err = con.Where("kode_pre_order = ?", Request.Kode_barang_pre_order).Delete("")
 
