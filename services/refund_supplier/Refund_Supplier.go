@@ -258,7 +258,7 @@ func Delete_Barang_Refund(Request request.Update_Refund_Request) (response.Respo
 	fmt.Println(check)
 	fmt.Println(Request)
 
-	if check == 0 {
+	if check == 0 || check == 2 {
 
 		con := db.CreateConGorm().Table("refund")
 

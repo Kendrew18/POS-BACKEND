@@ -211,7 +211,7 @@ func Update_Pre_Order(Request request.Update_Pre_order_Request, Request_kode req
 		res.Data = Request
 		return res, err.Error
 	}
-	if check == 0 {
+	if check == 0 || check == 2 {
 
 		con := db.CreateConGorm().Table("barang_pre_order")
 
@@ -257,7 +257,7 @@ func Delete_Pre_Order(Request request.Update_Pre_Order_Kode_Request) (response.R
 		res.Data = Request
 		return res, err.Error
 	}
-	if check == 0 {
+	if check == 0 || check == 2 {
 
 		con := db.CreateConGorm().Table("pre_order")
 
