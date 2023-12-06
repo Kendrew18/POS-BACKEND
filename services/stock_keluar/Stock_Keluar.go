@@ -18,13 +18,12 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 
 	var res response.Response
 
-	con := db.CreateConGorm().Table("stock")
-
 	kode_stock := tools.String_Separator_To_String(Request_Barang.Kode_stock)
 	jumlah := tools.String_Separator_To_float64(Request_Barang.Jumlah_barang)
 
 	for i := 0; i < len(kode_stock); i++ {
 		nama_barang := ""
+		con := db.CreateConGorm().Table("stock")
 		err := con.Select("nama_barang").Where("kode_stock = ? && jumlah >= ?", kode_stock[i], jumlah[i]).Scan(&nama_barang)
 
 		if err.Error != nil || nama_barang == "" {
@@ -65,7 +64,9 @@ func Input_Stock_Keluar(Request request.Input_Stock_Keluar_Request, Request_Bara
 
 		nama_barang := ""
 
-		err = con.Select("nama_barang").Where("kode_stock = ? && jumlah >= ?", kode_stock[i], jumlah[i]).Scan(&nama_barang)
+		con_stock_2 := db.CreateConGorm().Table("stock")
+
+		err = con_stock_2.Select("nama_barang").Where("kode_stock = ? && jumlah >= ?", kode_stock[i], jumlah[i]).Scan(&nama_barang)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
