@@ -1,15 +1,15 @@
 package response
 
 type Read_Pre_Order_Response struct {
-	Kode_pre_order     string                             `json:"kode_pre_order"`
-	Tanggal            string                             `json:"tanggal"`
-	Kode_nota          string                             `json:"kode_nota"`
-	Penanggung_jawab   string                             `json:"penanggung_jawab"`
-	Nama_supplier      string                             `json:"nama_supplier"`
-	Jumlah_total       float64                            `json:"jumlah_total"`
-	Total_harga        int64                              `json:"total_harga"`
-	Status             int                                `json:"status"`
-	Detail_stock_masuk []Read_Detail_Stock_Masuk_Response `json:"detail_stock_masuk"`
+	Kode_pre_order     string                           `json:"kode_pre_order"`
+	Tanggal            string                           `json:"tanggal"`
+	Kode_nota          string                           `json:"kode_nota"`
+	Penanggung_jawab   string                           `json:"penanggung_jawab"`
+	Nama_supplier      string                           `json:"nama_supplier"`
+	Jumlah_total       float64                          `json:"jumlah_total"`
+	Total_harga        int64                            `json:"total_harga"`
+	Status             int                              `json:"status"`
+	Detail_stock_masuk []Read_Barang_Pre_Order_Response `json:"detail_stock_masuk"`
 }
 
 type Read_Barang_Pre_Order_Response struct {

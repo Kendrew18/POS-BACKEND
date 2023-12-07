@@ -174,12 +174,22 @@ func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response
 	var res response.Response
 
 	var supplier []string
+	var PO_supplier []string
+	sup := ""
 
 	con_masuk := db.CreateConGorm().Table("stock_keluar_masuk")
 
 	err := con_masuk.Select("kode").Where("kode = ?", Request.Kode_supplier).Scan(&supplier).Error
 
-	if supplier == nil && err == nil {
+	con_PO := db.CreateConGorm().Table("pre_order")
+
+	err = con_PO.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&PO_supplier).Error
+
+	con_sup := db.CreateConGorm().Table("supplier")
+
+	err = con_sup.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&sup).Error
+
+	if supplier == nil && PO_supplier == nil && sup != "" && err == nil {
 
 		con_barang := db.CreateConGorm().Table("barang_supplier")
 

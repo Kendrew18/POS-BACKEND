@@ -166,7 +166,7 @@ func Read_Pre_Order(Request request.Read_Pre_Order_Request, Request_filter reque
 		}
 
 		con_detail := db.CreateConGorm().Table("barang_pre_order")
-		var detail_data []response.Read_Detail_Stock_Masuk_Response
+		var detail_data []response.Read_Barang_Pre_Order_Response
 
 		err = con_detail.Select("kode_barang_pre_order", "nama_barang", "DATE_FORMAT(tanggal_kadaluarsa, '%d-%m-%Y') AS tanggal_kadaluarsa", "jumlah_barang", "harga").Joins("join stock s on barang_pre_order.kode_stock = s.kode_stock").Where("kode_pre_order = ?", data.Kode_pre_order).Scan(&detail_data).Error
 

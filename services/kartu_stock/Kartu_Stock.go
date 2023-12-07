@@ -37,7 +37,7 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 
 		con_supplier := db.CreateConGorm().Table("supplier")
 
-		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && kode_stock = ? && kode_supplier = ?", Request.Kode_gudang, Request.Kode_stock, Request.Kode_supplier).Scan(&read_sup)
+		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && bs.kode_stock = ? && supplier.kode_supplier = ?", Request.Kode_gudang, Request.Kode_stock, Request.Kode_supplier).Scan(&read_sup)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -52,7 +52,7 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 
 		con_supplier := db.CreateConGorm().Table("supplier")
 
-		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && kode_supplier = ?", Request.Kode_gudang, Request.Kode_supplier).Scan(&read_sup)
+		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && supplier.kode_supplier = ?", Request.Kode_gudang, Request.Kode_supplier).Scan(&read_sup)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -67,7 +67,7 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 
 		con_supplier := db.CreateConGorm().Table("supplier")
 
-		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && kode_stock = ?", Request.Kode_gudang, Request.Kode_stock).Scan(&read_sup)
+		err := con_supplier.Select("supplier.kode_supplier", "nama_supplier", "bs.kode_stock", "nama_barang").Joins("JOIN barang_supplier bs ON bs.kode_supplier = supplier.kode_supplier").Joins("JOIN stock s ON s.kode_stock =  bs.kode_stock").Where("supplier.kode_gudang = ? && bs.kode_stock = ?", Request.Kode_gudang, Request.Kode_stock).Scan(&read_sup)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -179,7 +179,8 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 					selisih = selisih + (audit_raw[y].Stock_rill - audit_raw[y].Stock_dalam_sistem)
 				}
 
-				detail_raw_single.Tanggal = raw_data[i].Tanggal
+				date, _ := time.Parse("2006-01-02", raw_data[i].Tanggal)
+				detail_raw_single.Tanggal = date.Format("02-01-2006")
 				detail_raw_single.Jumlah_barang = selisih
 
 				if selisih > 0.0 {
