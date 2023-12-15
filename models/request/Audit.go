@@ -40,3 +40,7 @@ type Read_Audit_Stock struct {
 type Input_Audit_stock_User_Request struct {
 	Kode_user string `json:"kode_user"`
 }
+
+type Status_Audit_hari_ini_Request struct {
+	Status int `json:"status"`
+}

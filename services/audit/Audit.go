@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+/*
 func Read_Data_Awal_Audit_Stock(Request request.Read_Data_Awal_Audit_Stock_Request) (response.Response, error) {
 	var res response.Response
 	var data response.Read_Awal_Audit_Stock_Response
@@ -70,7 +71,7 @@ func Read_Data_Awal_Audit_Stock(Request request.Read_Data_Awal_Audit_Stock_Reque
 
 	return res, nil
 }
-
+*/
 func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail request.Input_Detail_Audit_stock_Request, Request_user request.Input_Audit_stock_User_Request) (response.Response, error) {
 	var res response.Response
 
@@ -233,30 +234,19 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 	return res, nil
 }
 
-func Read_Audit_Stock(Request request.Read_Audit_Stock) (response.Response, error) {
+func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.Status_Audit_hari_ini_Request) (response.Response, error) {
 	var res response.Response
-	var data response.Read_Audit_Stock_Response
-	var arr_data []response.Read_Audit_Stock_Response
 
-	con := db.CreateConGorm().Table("audit")
+	if Request_status.Status == 1 {
 
-	date, _ := time.Parse("02-01-2006", Request.Tanggal)
-	Request.Tanggal = date.Format("2006-01-02")
+		var data response.Read_Awal_Audit_Stock_Response
+		var arr_data []response.Read_Awal_Audit_Stock_Response
 
-	rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ?", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
+		con := db.CreateConGorm().Table("stock")
 
-	defer rows.Close()
+		rows, err := con.Select("kode_stock", "nama_barang", "jumlah").Joins("JOIN barang").Where("kode_gudang = ?", Request.Kode_gudang).Rows()
 
-	if err != nil {
-		res.Status = http.StatusNotFound
-		res.Message = "Status Not Found"
-		res.Data = data
-		return res, err
-	}
-
-	for rows.Next() {
-		var detail_data []response.Detail_Aduit_Stock_Response
-		err = rows.Scan(&data.Kode_audit, &data.Tanggal, &data.Nama_barang, &data.Total_jumlah_dalam_sistem, &data.Total_jumlah_stock_rill, &data.Total_jumlah_selisih_stock)
+		defer rows.Close()
 
 		if err != nil {
 			res.Status = http.StatusNotFound
@@ -264,31 +254,103 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock) (response.Response, erro
 			res.Data = data
 			return res, err
 		}
-		con_detail_audit := db.CreateConGorm().Table("detail_audit")
 
-		err2 := con_detail_audit.Select("kode_detail_audit", "DATE_FORMAT(tanggal_masuk, '%d-%m-%Y') AS tanggal_masuk", "stock_dalam_sistem", "stock_rill", "selisih_stock").Where("kode_audit = ?", data.Kode_audit).Scan(&detail_data)
+		for rows.Next() {
+			var detail_data []response.Detail_Aduit_Awal_Stock_Response
+			err = rows.Scan(&data.Kode_stock, &data.Nama_Barang, &data.Jumlah)
+			data.Tanggal_Sekarang = Request.Tanggal
 
-		if err2.Error != nil {
+			if err != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = data
+				return res, err
+			}
+			con_detail_barang := db.CreateConGorm().Table("detail_stock")
+
+			err2 := con_detail_barang.Select("kode_barang_keluar_masuk", "tanggal", "jumlah_barang").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Where("kode_stock =?", data.Kode_stock).Scan(&detail_data)
+
+			if err2.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = data
+				return res, err2.Error
+			}
+
+			data.Detail_audit_awal = detail_data
+
+			arr_data = append(arr_data, data)
+		}
+
+		if arr_data == nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = arr_data
+
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = arr_data
+		}
+
+	} else if Request_status.Status == 0 {
+
+		var data response.Read_Audit_Stock_Response
+		var arr_data []response.Read_Audit_Stock_Response
+
+		con := db.CreateConGorm().Table("audit")
+
+		date, _ := time.Parse("02-01-2006", Request.Tanggal)
+		Request.Tanggal = date.Format("2006-01-02")
+
+		rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ?", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
+
+		defer rows.Close()
+
+		if err != nil {
 			res.Status = http.StatusNotFound
 			res.Message = "Status Not Found"
 			res.Data = data
-			return res, err2.Error
+			return res, err
 		}
 
-		data.Detail_audit_awal = detail_data
+		for rows.Next() {
+			var detail_data []response.Detail_Aduit_Stock_Response
+			err = rows.Scan(&data.Kode_audit, &data.Tanggal, &data.Nama_barang, &data.Total_jumlah_dalam_sistem, &data.Total_jumlah_stock_rill, &data.Total_jumlah_selisih_stock)
 
-		arr_data = append(arr_data, data)
-	}
+			if err != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = data
+				return res, err
+			}
+			con_detail_audit := db.CreateConGorm().Table("detail_audit")
 
-	if arr_data == nil {
-		res.Status = http.StatusNotFound
-		res.Message = "Status Not Found"
-		res.Data = arr_data
+			err2 := con_detail_audit.Select("kode_detail_audit", "DATE_FORMAT(tanggal_masuk, '%d-%m-%Y') AS tanggal_masuk", "stock_dalam_sistem", "stock_rill", "selisih_stock").Where("kode_audit = ?", data.Kode_audit).Scan(&detail_data)
 
-	} else {
-		res.Status = http.StatusOK
-		res.Message = "Suksess"
-		res.Data = arr_data
+			if err2.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = data
+				return res, err2.Error
+			}
+
+			data.Detail_audit_awal = detail_data
+
+			arr_data = append(arr_data, data)
+		}
+
+		if arr_data == nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = arr_data
+
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = arr_data
+		}
+
 	}
 
 	return res, nil

@@ -4,10 +4,12 @@ import (
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/services/audit"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
+/*
 func ReadDataAwalAuditStock(c echo.Context) error {
 
 	var Request request.Read_Data_Awal_Audit_Stock_Request
@@ -22,7 +24,7 @@ func ReadDataAwalAuditStock(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 
-}
+}*/
 
 func InputAuditStock(c echo.Context) error {
 
@@ -55,10 +57,12 @@ func InputAuditStock(c echo.Context) error {
 func ReadAuditStock(c echo.Context) error {
 
 	var Request request.Read_Audit_Stock
+	var Request_status request.Status_Audit_hari_ini_Request
 	Request.Kode_gudang = c.FormValue("kode_gudang")
 	Request.Tanggal = c.FormValue("tanggal")
+	Request_status.Status, _ = strconv.Atoi(c.FormValue("Status_hari_ini"))
 
-	result, err := audit.Read_Audit_Stock(Request)
+	result, err := audit.Read_Audit_Stock(Request, Request_status)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
