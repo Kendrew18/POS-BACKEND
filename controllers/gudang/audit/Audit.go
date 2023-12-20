@@ -60,7 +60,7 @@ func ReadAuditStock(c echo.Context) error {
 	var Request_status request.Status_Audit_hari_ini_Request
 	Request.Kode_gudang = c.FormValue("kode_gudang")
 	Request.Tanggal = c.FormValue("tanggal")
-	Request_status.Status, _ = strconv.Atoi(c.FormValue("Status_hari_ini"))
+	Request_status.Status, _ = strconv.Atoi(c.FormValue("status_hari_ini"))
 
 	result, err := audit.Read_Audit_Stock(Request, Request_status)
 
