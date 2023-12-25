@@ -17,17 +17,20 @@ type Detail_Aduit_Awal_Stock_Response struct {
 type Read_Audit_Stock_Response struct {
 	Kode_audit                 string                        `json:"kode_audit"`
 	Tanggal                    string                        `json:"tanggal"`
+	Kode_stock                 string                        `json:"kode_stock"`
 	Nama_barang                string                        `json:"nama_barang"`
 	Total_jumlah_dalam_sistem  float64                       `json:"total_jumlah_dalam_sistem"`
 	Total_jumlah_stock_rill    float64                       `json:"total_jumlah_stock_rill"`
 	Total_jumlah_selisih_stock float64                       `json:"total_jumlah_selisih_stock"`
-	Detail_audit_awal          []Detail_Aduit_Stock_Response `json:"detail_audit_awal"`
+	Detail_audit_awal          []Detail_Audit_Stock_Response `json:"detail_audit_awal"`
 }
 
-type Detail_Aduit_Stock_Response struct {
-	Kode_detail_audit  string  `json:"kode_detail_audit"`
-	Tanggal_masuk      string  `json:"tanggal_masuk"`
-	Stock_dalam_sistem float64 `json:"stock_dalam_sistem"`
-	Stock_rill         float64 `json:"stock_rill"`
-	Selisih_stock      float64 `json:"selisih_stock"`
+type Detail_Audit_Stock_Response struct {
+	Kode_detail_audit        string  `json:"kode_detail_audit"`
+	Kode_barang_keluar_masuk string  `json:"kode_barang_keluar_masuk"`
+	Tanggal_masuk            string  `json:"tanggal_masuk"`
+	Stock_dalam_sistem       float64 `json:"stock_dalam_sistem"`
+	Stock_rill               float64 `json:"stock_rill"`
+	Selisih_stock            float64 `json:"selisih_stock"`
+	Kode_supplier            string  `json:"kode_supplier"`
 }

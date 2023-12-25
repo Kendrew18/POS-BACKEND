@@ -30,21 +30,19 @@ func InputAuditStock(c echo.Context) error {
 
 	var Request request.Input_Audit_stock_Request
 	var Request_detail request.Input_Detail_Audit_stock_Request
-	var Request_kode request.Input_Audit_stock_User_Request
 
+	Request.Kode_audit = c.FormValue("kode_audit")
 	Request.Kode_gudang = c.FormValue("kode_gudang")
 	Request.Tanggal = c.FormValue("tanggal_sekarang")
 	Request.Kode_stock = c.FormValue("kode_stock")
 
 	Request_detail.Kode_barang_keluar_masuk = c.FormValue("kode_barang_keluar_masuk")
+	Request_detail.Kode_detail_audit = c.FormValue("kode_detail_audit")
 	Request_detail.Tanggal_masuk = c.FormValue("tanggal_masuk")
-	Request_detail.Stock_dalam_sistem = c.FormValue("stock_dalam_sistem")
-	Request_detail.Stock_rill = c.FormValue("stock_rill")
-	Request_detail.Selisih_stock = c.FormValue("selisih_stock")
+	Request_detail.Stock_dalam_sistem, _ = strconv.ParseFloat(c.FormValue("stock_dalam_sistem"), 64)
+	Request_detail.Stock_rill, _ = strconv.ParseFloat(c.FormValue("stock_rill"), 64)
 
-	Request_kode.Kode_user = c.FormValue("kode_user")
-
-	result, err := audit.Input_Audit_Stock(Request, Request_detail, Request_kode)
+	result, err := audit.Input_Audit_Stock(Request, Request_detail)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
