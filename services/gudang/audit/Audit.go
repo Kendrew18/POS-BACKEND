@@ -4,12 +4,15 @@ import (
 	"POS-BACKEND/db"
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/models/response"
+	"POS-BACKEND/tools"
 	"fmt"
 	"math"
 	"strconv"
 
 	"net/http"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail request.Input_Detail_Audit_stock_Request) (response.Response, error) {
@@ -34,10 +37,7 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 			return res, err.Error
 		}
 
-		date, _ := time.Parse("02-01-2006", Request.Tanggal)
-		Request.Tanggal = date.Format("2006-01-02")
-
-		err = con.Table("audit").Select("co", "kode_audit", "tanggal", "kode_stock", "kode_gudang", "status").Create(&Request)
+		err = con.Table("audit").Select("co", "kode_audit", "kode_stock", "kode_gudang", "status").Create(&Request)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -285,7 +285,7 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 		date, _ := time.Parse("02-01-2006", Request.Tanggal)
 		Request.Tanggal = date.Format("2006-01-02")
 
-		rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "audit.kode_stock", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ? && audit.status = 1", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
+		rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "audit.kode_stock", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ? && audit.status = 1 && detail_audit.status = 0", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
 
 		defer rows.Close()
 
@@ -340,6 +340,126 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 }
 
 // fungsi change status
-func Update_Status_Audit() {
+func Update_Status_Audit(Request request.Update_Status_Audit_Request) (response.Response, error) {
+	var res response.Response
+	var err *gorm.DB
 
+	con := db.CreateConGorm()
+
+	kode_audit := tools.String_Separator_To_String(Request.Kode_audit)
+
+	for i := 0; i < len(kode_audit); i++ {
+		var status request.Update_Status_Audit_Request_V2
+
+		status.Status = 1
+
+		date, _ := time.Parse("02-01-2006", Request.Tanggal)
+		status.Tanggal = date.Format("2006-01-02")
+
+		err = con.Table("audit").Where("kode_audit = ?", kode_audit[i]).Select("status", "tanggal").Updates(&status)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		// pencatatan pada stock_keluar_masuk
+		var Request_keluar request.Input_Stock_Keluar_Request
+		con_stock_keluar := db.CreateConGorm().Table("stock_keluar_masuk")
+
+		co := 0
+
+		err = con_stock_keluar.Select("co").Order("co DESC").Limit(1).Scan(&co)
+
+		Request_keluar.Co = co + 1
+		Request_keluar.Kode_stock_keluar_masuk = Request.Kode_audit
+		Request_keluar.Status = 2
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		Request_keluar.Tanggal = status.Tanggal
+		Request_keluar.Kode_nota = ""
+
+		con_user := db.CreateConGorm().Table("user")
+
+		username := ""
+		err = con_user.Select("username").Where("id_user = ?", Request.Kode_user).Scan(&username)
+
+		Request_keluar.Nama_penanggung_jawab = username
+		Request_keluar.Kode_gudang = Request.Kode_gudang
+		Request_keluar.Kode = ""
+
+		err = con_stock_keluar.Select("co", "kode_stock_keluar_masuk", "tanggal", "kode_nota", "nama_penanggung_jawab", "kode", "kode_gudang", "status").Create(&Request_keluar)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		// adjust jumlah stock
+		total_stock := 0.0
+		err = con.Table("detail_audit").Select("SUM(stock_rill)").Where("kode_audit =?", kode_audit[i]).Scan(&total_stock)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		kode_stock := ""
+		err = con.Table("audit").Select("kode_stock").Where("kode_audit =?", kode_audit[i]).Scan(&kode_stock)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		con_stock := db.CreateConGorm().Table("stock")
+
+		err = con_stock.Where("kode_stock = ?", kode_stock).Update("jumlah", &total_stock)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		//adjust detail stock
+		err = con.Raw("UPDATE detail_stock join detail_audit da on detail_stock.kode_detail_stock = da.kode_barang_keluar_masuk SET jumlah_barang = stock_rill WHERE da.kode_audit = ?", kode_audit[i])
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+	}
+
+	if err.Error != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err.Error
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = map[string]int64{
+			"rows": err.RowsAffected,
+		}
+	}
+
+	return res, nil
 }

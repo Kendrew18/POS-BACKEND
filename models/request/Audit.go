@@ -8,7 +8,6 @@ type Read_Data_Awal_Audit_Stock_Request struct {
 type Input_Audit_stock_Request struct {
 	Co          int    `json:"co"`
 	Kode_audit  string `json:"kode_audit"`
-	Tanggal     string `json:"tanggal"`
 	Kode_stock  string `json:"kode_stock"`
 	Kode_gudang string `json:"kode_gudang"`
 	Status      int    `json:"status"`
@@ -31,13 +30,21 @@ type Update_Stock_Rill struct {
 	Stock_rill float64 `json:"stock_rill"`
 }
 
+type Update_Status_Audit_Request struct {
+	Kode_audit  string `json:"kode_audit"`
+	Tanggal     string `json:"tanggal"`
+	Kode_user   string `json:"kode_user"`
+	Kode_gudang string `json:"kode_gudang"`
+}
+
+type Update_Status_Audit_Request_V2 struct {
+	Status  int    `json:"status"`
+	Tanggal string `json:"tanggal"`
+}
+
 type Read_Audit_Stock struct {
 	Tanggal     string `json:"Tanggal"`
 	Kode_gudang string `json:"Kode_gudang"`
-}
-
-type Input_Audit_stock_User_Request struct {
-	Kode_user string `json:"kode_user"`
 }
 
 type Status_Audit_hari_ini_Request struct {
