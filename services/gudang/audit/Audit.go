@@ -205,13 +205,29 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 
 			} else {
 
-				err2 = con_detail_barang.Select("IFNULL(kode_detail_audit,'') AS kode_detail_audit", "detail_stock.kode_barang_keluar_masuk", "tanggal as tanggal_masuk", "jumlah_barang AS stock_dalam_sistem", "IFNULL(stock_rill, 0) AS stock_rill", "IFNULL(selisih_stock, 0) AS selisih_stock", "skm.kode as kode_supplier").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock = ? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data)
+				var data_detail_data response.Detail_Audit_Stock_Response
+				var detail_data_temp []response.Detail_Audit_Stock_Response_Temp
+				err2 = con_detail_barang.Select("IFNULL(kode_detail_audit,'') AS kode_detail_audit", "detail_stock.kode_barang_keluar_masuk", "tanggal as tanggal_masuk", "jumlah_barang AS stock_dalam_sistem", "IFNULL(stock_rill, 0) AS stock_rill", "IFNULL(selisih_stock, 0) AS selisih_stock", "skm.kode as kode_supplier", "IFNULL(kode_audit,'') AS kode_audit").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock = ? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data_temp)
 
 				if err2.Error != nil {
 					res.Status = http.StatusNotFound
 					res.Message = "Status Not Found"
 					res.Data = data
 					return res, err2.Error
+				}
+
+				for i := 0; i < len(detail_data_temp); i++ {
+					if detail_data_temp[i].Kode_audit == "" || detail_data_temp[i].Kode_audit == data.Kode_audit {
+						data_detail_data.Kode_barang_keluar_masuk = detail_data_temp[i].Kode_barang_keluar_masuk
+						data_detail_data.Kode_detail_audit = detail_data_temp[i].Kode_detail_audit
+						data_detail_data.Kode_supplier = detail_data_temp[i].Kode_supplier
+						data_detail_data.Selisih_stock = detail_data_temp[i].Selisih_stock
+						data_detail_data.Stock_rill = detail_data_temp[i].Stock_rill
+						data_detail_data.Stock_dalam_sistem = detail_data_temp[i].Stock_dalam_sistem
+						data_detail_data.Tanggal_masuk = detail_data_temp[i].Tanggal_masuk
+
+						detail_data = append(detail_data, data_detail_data)
+					}
 				}
 
 				con_detail_barang_upadate := db.CreateConGorm()
