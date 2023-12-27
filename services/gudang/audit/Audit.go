@@ -187,7 +187,7 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 
 			if data.Kode_audit == "" {
 
-				err2 = con_detail_barang.Select("detail_stock.kode_barang_keluar_masuk", "tanggal as tanggal_masuk", "jumlah_barang as stock_dalam_sistem", "skm.kode as kode_supplier").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock =? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data)
+				err2 = con_detail_barang.Select("detail_stock.kode_barang_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') as tanggal_masuk", "jumlah_barang as stock_dalam_sistem", "skm.kode as kode_supplier").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock =? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data)
 
 				if err2.Error != nil {
 					res.Status = http.StatusNotFound
@@ -207,7 +207,7 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 
 				var data_detail_data response.Detail_Audit_Stock_Response
 				var detail_data_temp []response.Detail_Audit_Stock_Response_Temp
-				err2 = con_detail_barang.Select("IFNULL(kode_detail_audit,'') AS kode_detail_audit", "detail_stock.kode_barang_keluar_masuk", "tanggal as tanggal_masuk", "jumlah_barang AS stock_dalam_sistem", "IFNULL(stock_rill, 0) AS stock_rill", "IFNULL(selisih_stock, 0) AS selisih_stock", "skm.kode as kode_supplier", "IFNULL(kode_audit,'') AS kode_audit").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock = ? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data_temp)
+				err2 = con_detail_barang.Select("IFNULL(kode_detail_audit,'') AS kode_detail_audit", "detail_stock.kode_barang_keluar_masuk", "DATE_FORMAT(tanggal, '%d-%m-%Y') as tanggal_masuk", "jumlah_barang AS stock_dalam_sistem", "IFNULL(stock_rill, 0) AS stock_rill", "IFNULL(selisih_stock, 0) AS selisih_stock", "skm.kode as kode_supplier", "IFNULL(kode_audit,'') AS kode_audit").Joins("JOIN stock_keluar_masuk skm on skm.kode_stock_keluar_masuk = detail_stock.kode_stock_keluar_masuk").Joins("LEFT JOIN detail_audit da ON da.kode_barang_keluar_masuk = detail_stock.kode_barang_keluar_masuk").Where("kode_stock = ? && detail_stock.jumlah_barang > 0", data.Kode_stock).Scan(&detail_data_temp)
 
 				if err2.Error != nil {
 					res.Status = http.StatusNotFound
