@@ -40,6 +40,7 @@ func InputAuditStock(c echo.Context) error {
 	Request_detail.Tanggal_masuk = c.FormValue("tanggal_masuk")
 	Request_detail.Stock_dalam_sistem, _ = strconv.ParseFloat(c.FormValue("stock_dalam_sistem"), 64)
 	Request_detail.Stock_rill, _ = strconv.ParseFloat(c.FormValue("stock_rill"), 64)
+	Request_detail.Kode_supplier = c.FormValue("kode_supplier")
 
 	result, err := audit.Input_Audit_Stock(Request, Request_detail)
 
@@ -48,7 +49,6 @@ func InputAuditStock(c echo.Context) error {
 	}
 
 	return c.JSON(result.Status, result)
-
 }
 
 func ReadAuditStock(c echo.Context) error {
@@ -66,5 +66,23 @@ func ReadAuditStock(c echo.Context) error {
 	}
 
 	return c.JSON(result.Status, result)
+}
 
+func UpdateStatusAudit(c echo.Context) error {
+
+	var Request request.Update_Status_Audit_Request
+	Request.Kode_gudang = c.FormValue("kode_gudang")
+	Request.Tanggal = c.FormValue("tanggal")
+	Request.Kode_user = c.FormValue("kode_user")
+	Request.Kode_audit = c.FormValue("kode_audit")
+
+	//Kode Audit di sini merupakan string separator kode
+
+	result, err := audit.Update_Status_Audit(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
 }

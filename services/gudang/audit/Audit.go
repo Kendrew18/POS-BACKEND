@@ -50,9 +50,12 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 		err = con.Table("detail_audit").Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		Request_detail.Co = co + 1
-		Request_detail.Kode_detail_audit = "DAU-" + strconv.Itoa(Request.Co)
+		Request_detail.Kode_detail_audit = "DAU-" + strconv.Itoa(Request_detail.Co)
 		Request_detail.Kode_audit = Request.Kode_audit
 		Request_detail.Status = 0
+
+		date, _ := time.Parse("02-01-2006", Request_detail.Tanggal_masuk)
+		Request_detail.Tanggal_masuk = date.Format("2006-01-02")
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -82,9 +85,12 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 		err := con.Table("detail_audit").Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		Request_detail.Co = co + 1
-		Request_detail.Kode_detail_audit = "DAU-" + strconv.Itoa(Request.Co)
+		Request_detail.Kode_detail_audit = "DAU-" + strconv.Itoa(Request_detail.Co)
 		Request_detail.Kode_audit = Request.Kode_audit
 		Request_detail.Status = 0
+
+		date, _ := time.Parse("02-01-2006", Request_detail.Tanggal_masuk)
+		Request_detail.Tanggal_masuk = date.Format("2006-01-02")
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -114,7 +120,7 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 
 		stock_rill.Stock_rill = Request_detail.Stock_rill
 
-		err := con.Table("detail_audit").Where("kode_detail_audit = ?").Select("stock_rill").Updates(&stock_rill)
+		err := con.Table("detail_audit").Where("kode_detail_audit = ?", Request_detail.Kode_detail_audit).Select("stock_rill").Updates(&stock_rill)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -130,8 +136,6 @@ func Input_Audit_Stock(Request request.Input_Audit_stock_Request, Request_detail
 		}
 
 	}
-
-	//err:= con.Table("")
 
 	return res, nil
 }
@@ -374,7 +378,7 @@ func Update_Status_Audit(Request request.Update_Status_Audit_Request) (response.
 		err = con_stock_keluar.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 		Request_keluar.Co = co + 1
-		Request_keluar.Kode_stock_keluar_masuk = Request.Kode_audit
+		Request_keluar.Kode_stock_keluar_masuk = kode_audit[i]
 		Request_keluar.Status = 2
 
 		if err.Error != nil {
