@@ -165,7 +165,7 @@ func Read_Kartu_Stock(Request request.Read_Kartu_Stock_Request) (response.Respon
 				var audit_raw []response.Audit_RAW_response
 				con_stock_raw := db.CreateConGorm().Table("audit")
 
-				err = con_stock_raw.Select("stock_dalam_sistem, stock_rill").Joins("JOIN detail_audit da ON da.kode_audit=audit.kode_audit").Where("audit.kode_audit = ? && kode_supplier = ? && kode_stock = ? && audit.status = 1 && && detail_audit.status = 0", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Scan(&audit_raw)
+				err = con_stock_raw.Select("stock_dalam_sistem, stock_rill").Joins("JOIN detail_audit da ON da.kode_audit=audit.kode_audit").Where("da.`status`= 0 AND audit.kode_audit = ? AND kode_supplier = ? AND kode_stock = ? AND audit.`status` = 1", raw_data[i].Kode_stock_keluar_masuk, read_sup[j].Kode_supplier, read_sup[j].Kode_stock).Scan(&audit_raw)
 
 				if err.Error != nil {
 					res.Status = http.StatusNotFound

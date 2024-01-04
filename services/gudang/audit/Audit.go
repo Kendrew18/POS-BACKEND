@@ -300,12 +300,12 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 		var data response.Read_Audit_Stock_Response
 		var arr_data []response.Read_Audit_Stock_Response
 
-		con := db.CreateConGorm().Table("audit")
+		con := db.CreateConGorm()
 
 		date, _ := time.Parse("02-01-2006", Request.Tanggal)
 		Request.Tanggal = date.Format("2006-01-02")
 
-		rows, err := con.Select("audit.kode_audit", "DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "audit.kode_stock", "nama_barang", "SUM(ds.stock_dalam_sistem)", "SUM(stock_rill)", "SUM(selisih_stock)").Joins("JOIN stock s ON s.kode_stock = audit.kode_stock").Joins("JOIN detail_audit ds ON ds.kode_audit = audit.kode_audit").Where("audit.kode_gudang = ? && tanggal = ? && audit.status = 1 && detail_audit.status = 0", Request.Kode_gudang, Request.Tanggal).Group("audit.kode_audit").Order("audit.co DESC").Rows()
+		rows, err := con.Raw("SELECT audit.kode_audit,DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal,audit.kode_stock,nama_barang,SUM(da.stock_dalam_sistem),SUM(stock_rill),SUM(selisih_stock) FROM audit JOIN detail_audit da ON audit.kode_audit = da.kode_audit JOIN stock s on s.kode_stock = audit.kode_stock WHERE audit.`status`=1 AND da.`status`= 0 and audit.kode_gudang = ? AND tanggal = ? GROUP BY audit.kode_audit ORDER BY audit.co DESC", Request.Kode_gudang, Request.Tanggal).Rows()
 
 		defer rows.Close()
 
@@ -329,7 +329,7 @@ func Read_Audit_Stock(Request request.Read_Audit_Stock, Request_status request.S
 
 			con_detail_audit := db.CreateConGorm().Table("detail_audit")
 
-			err2 := con_detail_audit.Select("kode_detail_audit", "kode_barang_keluar_masuk", "DATE_FORMAT(tanggal_masuk, '%d-%m-%Y') AS tanggal_masuk", "stock_dalam_sistem", "stock_rill", "selisih_stock").Where("kode_audit = ?", data.Kode_audit).Scan(&detail_data)
+			err2 := con_detail_audit.Select("kode_detail_audit", "kode_barang_keluar_masuk", "DATE_FORMAT(tanggal_masuk, '%d-%m-%Y') AS tanggal_masuk", "stock_dalam_sistem", "stock_rill", "selisih_stock", "kode_supplier").Where("kode_audit = ? && status=0", data.Kode_audit).Scan(&detail_data)
 
 			if err2.Error != nil {
 				res.Status = http.StatusNotFound
