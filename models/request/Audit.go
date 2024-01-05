@@ -27,7 +27,9 @@ type Input_Detail_Audit_stock_Request struct {
 }
 
 type Update_Stock_Rill struct {
-	Stock_rill float64 `json:"stock_rill"`
+	Stock_rill         float64 `json:"stock_rill"`
+	Selisih_stock      float64 `json:"selisih_stock"`
+	Stock_dalam_sistem float64 `json:"stock_dalam_sistem"`
 }
 
 type Update_Status_Audit_Request struct {
