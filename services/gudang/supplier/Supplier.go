@@ -5,6 +5,7 @@ import (
 	"POS-BACKEND/models/request"
 	"POS-BACKEND/models/response"
 	"POS-BACKEND/tools"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -96,7 +97,7 @@ func Read_Supplier(Request request.Read_Supplier_Request) (response.Response, er
 
 	con := db.CreateConGorm().Table("supplier")
 
-	rows, err := con.Select("kode_supplier", "nama_supplier", "nomor_telpon").Where("kode_gudang = ?", Request.Kode_gudang).Rows()
+	rows, err := con.Select("kode_supplier", "nama_supplier", "nomor_telpon").Where("kode_gudang = ?", Request.Kode_gudang).Order("supplier.co ASC").Rows()
 
 	defer rows.Close()
 
@@ -175,29 +176,99 @@ func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response
 
 	var supplier []string
 	var PO_supplier []string
+	var refund []string
 	sup := ""
 
 	con_masuk := db.CreateConGorm().Table("stock_keluar_masuk")
 
-	err := con_masuk.Select("kode").Where("kode = ?", Request.Kode_supplier).Scan(&supplier).Error
+	err := con_masuk.Select("kode").Joins("JOIN barang_stock_keluar_masuk bkm on bkm.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode = ? AND kode_stock = ?", Request.Kode_supplier, Request.Kode_stock).Scan(&supplier).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	fmt.Println(supplier)
 
 	con_PO := db.CreateConGorm().Table("pre_order")
 
-	err = con_PO.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&PO_supplier).Error
+	err = con_PO.Select("kode_supplier").Joins("JOIN barang_pre_order bpo on bpo.kode_pre_order = pre_order.kode_pre_order").Where("kode_supplier = ? AND kode_stock = ?", Request.Kode_supplier, Request.Kode_stock).Scan(&PO_supplier).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	fmt.Println(PO_supplier)
+
+	con_refund := db.CreateConGorm().Table("refund")
+
+	err = con_refund.Select("kode_supplier").Joins("JOIN barang_refund bpo on bpo.kode_refund = refund.kode_refund").Where("kode_supplier = ? AND kode_stock=?", Request.Kode_supplier, Request.Kode_stock).Scan(&refund).Error
+
+	fmt.Println(refund)
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
 
 	con_sup := db.CreateConGorm().Table("supplier")
 
 	err = con_sup.Select("kode_supplier").Where("kode_supplier = ?", Request.Kode_supplier).Scan(&sup).Error
 
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
 	if supplier == nil && PO_supplier == nil && sup != "" && err == nil {
+
+		var barang_supplier []string
 
 		con_barang := db.CreateConGorm().Table("barang_supplier")
 
-		err := con_barang.Where("kode_supplier=?", Request.Kode_supplier).Delete("")
+		err := con_barang.Where("kode_supplier=? AND kode_stock = ?", Request.Kode_supplier, Request.Kode_stock).Delete("")
 
-		con := db.CreateConGorm().Table("supplier")
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
 
-		err = con.Where("kode_supplier=?", Request.Kode_supplier).Delete("")
+		con := db.CreateConGorm()
+
+		err = con.Table("barang_supplier").Select("kode_barang_supplier").Where("kode_supplier=?", Request.Kode_supplier).Scan(&barang_supplier)
+
+		fmt.Println(barang_supplier)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		if barang_supplier == nil {
+
+			err = con.Table("supplier").Where("kode_supplier=?", Request.Kode_supplier).Delete("")
+
+			if err.Error != nil {
+				res.Status = http.StatusNotFound
+				res.Message = "Status Not Found"
+				res.Data = Request
+				return res, err.Error
+			}
+
+		}
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -211,6 +282,7 @@ func Delete_Supplier(Request request.Delete_Supplier_Request) (response.Response
 				"rows": err.RowsAffected,
 			}
 		}
+
 	} else {
 		res.Status = http.StatusNotFound
 		res.Message = "Erorr karena ada condition yang tidak terpenuhi"

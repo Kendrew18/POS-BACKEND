@@ -63,6 +63,7 @@ func DeleteSupplier(c echo.Context) error {
 	var Request request.Delete_Supplier_Request
 
 	Request.Kode_supplier = c.FormValue("kode_supplier")
+	Request.Kode_stock = c.FormValue("kode_stock")
 
 	result, err := supplier.Delete_Supplier(Request)
 

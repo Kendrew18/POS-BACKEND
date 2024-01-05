@@ -21,6 +21,7 @@ type Read_Supplier_Request struct {
 
 type Delete_Supplier_Request struct {
 	Kode_supplier string `json:"kode_supplier"`
+	Kode_stock    string `json:"kode_stock"`
 }
 
 type Read_Barang_Supplier_Request struct {
