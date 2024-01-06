@@ -53,7 +53,7 @@ func Read_Barang_Kasir(Request request_kasir.Read_Barang_Kasir_Request) (respons
 
 	con := db.CreateConGorm().Table("barang_kasir")
 
-	err := con.Select("kode_barang_kasir", "nama_barang_kasir", "nama_satuan", "jumlah_pengali").Joins("JOIN satuan_kasir sk ON sk.kode_satuan = barang_kasir.kode_satuan").Where("kode_kasir = ?").Order("co ASC").Scan(&data).Error
+	err := con.Select("kode_barang_kasir", "nama_barang_kasir", "nama_satuan", "jumlah_pengali").Joins("JOIN satuan_kasir sk ON sk.kode_satuan = barang_kasir.kode_satuan").Where("barang_kasir.kode_kasir = ?", Request.Kode_kasir).Order("barang_kasir.co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

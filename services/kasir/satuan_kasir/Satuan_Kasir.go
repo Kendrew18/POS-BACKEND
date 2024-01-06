@@ -16,7 +16,7 @@ func Input_Satuan_Kasir(Request request_kasir.Input_Satuan_Kasir_Request) (respo
 
 	co := 0
 
-	err := con.Select("co").Order("co DESC").Scan(&co)
+	err := con.Select("co").Order("co DESC").Limit(1).Scan(&co)
 
 	Request.Co = co + 1
 	Request.Kode_satuan = "SAT-" + strconv.Itoa(Request.Co)
@@ -82,9 +82,9 @@ func Delete_Satuan_Barang(Request request_kasir.Delete_Satuan_Kasir_Request) (re
 
 	var satuan_barang []string
 
-	con_stock := db.CreateConGorm().Table("stock_kasir")
+	con_stock := db.CreateConGorm().Table("barang_kasir")
 
-	err := con_stock.Select("kode_satuan_barang").Where("kode_satuan_barang =?", Request.Kode_satuan).Scan(&satuan_barang).Error
+	err := con_stock.Select("kode_satuan").Where("kode_satuan =?", Request.Kode_satuan).Scan(&satuan_barang).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound
