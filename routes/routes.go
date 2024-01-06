@@ -17,6 +17,7 @@ import (
 	"POS-BACKEND/controllers/kasir/bentuk_retur"
 	"POS-BACKEND/controllers/kasir/gudang_kasir"
 	"POS-BACKEND/controllers/kasir/jenis_pembayaran"
+	"POS-BACKEND/controllers/kasir/notifikasi"
 	"POS-BACKEND/controllers/kasir/satuan_kasir"
 	"POS-BACKEND/controllers/kasir/user_management"
 	"net/http"
@@ -147,6 +148,11 @@ func Init() *echo.Echo {
 	BK := e.Group("/BK")
 	BK.POST("/barang-kasir", barang_kasir.InputBarangKasir)
 	BK.GET("/barang-kasir", barang_kasir.ReadBarangKasir)
+
+	//Notifikasi
+	NF := e.Group("/NF")
+	NF.PUT("/notifikasi", notifikasi.UpdateJumlahMinimal)
+	NF.GET("/notifikasi", notifikasi.ReadNotifikasi)
 
 	return e
 }
