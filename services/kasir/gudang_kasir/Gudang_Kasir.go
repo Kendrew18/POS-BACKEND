@@ -53,7 +53,7 @@ func Read_Gudang_Kasir(Request request_kasir.Read_Gudang_Kasir_Request) (respons
 
 	con := db.CreateConGorm().Table("gudang_kasir")
 
-	err := con.Select("kode_gudang_kasir", "kode_gudang", "nama_gudang", "alamat").Joins("JOIN gudang g on g.kode_gudang = gudang_kasir.kode_gudang").Where("gudang_kasir.kode_kasir = ?", Request.Kode_kasir).Order("gudang_kasir.co ASC").Scan(&data).Error
+	err := con.Select("kode_gudang_kasir", "gudang_kasir.kode_gudang", "nama_gudang", "alamat").Joins("JOIN gudang g on g.kode_gudang = gudang_kasir.kode_gudang").Where("gudang_kasir.kode_kasir = ?", Request.Kode_kasir).Order("gudang_kasir.co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

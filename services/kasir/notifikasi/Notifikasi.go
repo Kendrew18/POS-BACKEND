@@ -10,11 +10,11 @@ import (
 func Read_Notifikasi(Request request_kasir.Read_Notifikasi_Kasir_Request) (response_kasir.Response, error) {
 
 	var res response_kasir.Response
-	var data []response_kasir.Read_Barang_Kasir_Response
+	var data []response_kasir.Read_Notifikasi_Kasir_Response
 
 	con := db.CreateConGorm().Table("barang_kasir")
 
-	err := con.Select("kode_barang_kasir", "nama_barang_kasir", "jumlah", "jumlah_minimal", "IF(jumlah >= jumlah_minimal,0,1)").Joins("JOIN satuan_kasir sk ON sk.kode_satuan = barang_kasir.kode_satuan").Where("barang_kasir.kode_kasir = ?", Request.Kode_kasir).Order("barang_kasir.co ASC").Scan(&data).Error
+	err := con.Select("kode_barang_kasir", "nama_barang_kasir", "jumlah", "jumlah_minimal", "IF(jumlah >= jumlah_minimal,0,1) as status").Joins("JOIN satuan_kasir sk ON sk.kode_satuan = barang_kasir.kode_satuan").Where("barang_kasir.kode_kasir = ?", Request.Kode_kasir).Order("barang_kasir.co ASC").Scan(&data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound
