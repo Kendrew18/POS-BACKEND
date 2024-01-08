@@ -50,3 +50,18 @@ func DropdownGudang(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func DropdownGudangKasir(c echo.Context) error {
+
+	var Request request_kasir.Read_Gudang_Kasir_Request
+	Request.Kode_kasir = c.FormValue("kode_kasir")
+
+	result, err := gudang_kasir.Dropdown_Gudang_Kasir(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+
+}

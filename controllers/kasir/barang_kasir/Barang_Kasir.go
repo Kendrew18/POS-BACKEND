@@ -41,3 +41,17 @@ func ReadBarangKasir(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DropdownBarangKasir(c echo.Context) error {
+	var Request request_kasir.Dropdown_Barang_Kasir_Request
+	Request.Kode_kasir = c.FormValue("kode_kasir")
+	Request.Kode_store = c.FormValue("kode_store")
+
+	result, err := barang_kasir.Dropdown_Barang_Kasir(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

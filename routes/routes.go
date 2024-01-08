@@ -145,11 +145,13 @@ func Init() *echo.Echo {
 	GK.GET("/gudang-kasir", gudang_kasir.ReadGudangKasir)
 	GK.POST("/gudang-kasir", gudang_kasir.InputGudangKasir)
 	GK.GET("/dropdown-gudang", gudang_kasir.DropdownGudang)
+	GK.GET("/dropdown-gudang-kasir", gudang_kasir.DropdownGudangKasir)
 
 	//Barang_Kasir
 	BK := e.Group("/BK")
 	BK.POST("/barang-kasir", barang_kasir.InputBarangKasir)
 	BK.GET("/barang-kasir", barang_kasir.ReadBarangKasir)
+	BK.GET("/dropdown-barang-kasir", barang_kasir.DropdownBarangKasir)
 
 	//Notifikasi
 	NF := e.Group("/NF")

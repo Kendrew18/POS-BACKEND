@@ -13,3 +13,8 @@ type Input_Barang_Kasir_Request struct {
 type Read_Barang_Kasir_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 }
+
+type Dropdown_Barang_Kasir_Request struct {
+	Kode_kasir string `json:"kode_kasir"`
+	Kode_store string `json:"kode_store"`
+}

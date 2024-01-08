@@ -109,3 +109,33 @@ func Read_Barang_Kasir(Request request_kasir.Read_Barang_Kasir_Request) (respons
 
 	return res, nil
 }
+
+func Dropdown_Barang_Kasir(Request request_kasir.Dropdown_Barang_Kasir_Request) (response_kasir.Response, error) {
+	var res response_kasir.Response
+
+	var arr_data []response_kasir.Dropdown_Barang_Kasir_Response
+
+	con := db.CreateConGorm().Table("barang_kasir")
+
+	err := con.Select("kode_barang_kasir", "nama_barang_kasir").Where("barang_kasir.kode_kasir = ? AND kode_store = ?", Request.Kode_kasir, Request.Kode_store).Order("barang_kasir.co ASC").Scan(&arr_data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if arr_data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = arr_data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = arr_data
+	}
+
+	return res, nil
+}
