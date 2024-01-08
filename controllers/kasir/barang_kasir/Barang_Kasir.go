@@ -15,6 +15,7 @@ func InputBarangKasir(c echo.Context) error {
 	Request.Kode_satuan = c.FormValue("kode_satuan")
 	Request.Jumlah_pengali = c.FormValue("jumlah_pengali")
 	Request.Kode_kasir = c.FormValue("kode_kasir")
+	Request.Kode_store = c.FormValue("kode_store")
 
 	result, err := barang_kasir.Input_Barang_Kasir(Request)
 

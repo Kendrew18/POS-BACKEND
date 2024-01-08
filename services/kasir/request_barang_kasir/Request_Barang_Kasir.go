@@ -8,8 +8,10 @@ import (
 	"POS-BACKEND/tools"
 	"database/sql"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -43,7 +45,7 @@ func Input_Request_Barang_Kasir(Request request_kasir.Input_Request_Barang_Kasir
 	Request.Tanggal_request = date.Format("2006-01-02")
 	Request.Status = 0
 
-	err = con.Select("co", "kode_request_barang_kasir", "tanggal_request", "kode_gudang", "kode_store", "status").Create(&Request)
+	err = con.Select("co", "kode_request_barang_kasir", "tanggal_request", "kode_gudang", "kode_store", "kode_kasir", "status").Create(&Request)
 
 	kode_stock := tools.String_Separator_To_String(Request_Barang.Kode_stock_gudang)
 	Jumlah := tools.String_Separator_To_float64(Request_Barang.Jumlah)
@@ -111,7 +113,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, tanggal_request, nama_gudang, nama_store, status FROM request_barang_kasir JOIN barang_request_barang_kasir brbk ON brbk.kode_request_barang_kasir = request_barang_kasir.kode_request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
+	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, tanggal_request, nama_gudang, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
 
 	if Request_filter.Kode_store != "" {
 		statement += " && request_barang_kasir.kode_store = '" + Request_filter.Kode_store + "'"
@@ -153,7 +155,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 		con_detail := db.CreateConGorm().Table("barang_request_barang_kasir")
 		var detail_data []response_kasir.Read_Barang_Request_Barang_Kasir_Response
 
-		err = con_detail.Select("kode_request_barang", "nama_barang", "jumlah").Joins("join barang_kasir bk on barang_request_barang_kasir.kode_barang_kasir = bk.kode_barang_kasir").Where("kode_request_barang_kasir = ?", data.Kode_request_barang_kasir).Scan(&detail_data).Error
+		err = con_detail.Select("kode_barang_request", "nama_barang_kasir", "barang_request_barang_kasir.jumlah").Joins("join barang_kasir bk on barang_request_barang_kasir.kode_barang_kasir = bk.kode_barang_kasir").Where("kode_request_barang_kasir = ?", data.Kode_request_barang_kasir).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound
@@ -269,7 +271,7 @@ func Delete_Request_Barang_Kasir(Request request_kasir.Update_Request_Barang_Kas
 
 		con_check := db.CreateConGorm().Table("barang_request_barang_kasir")
 
-		err = con_check.Select("barang_request_barang_kasir").Where("kode_request_barang_kasir=?", data).Limit(1).Scan(&kode_barang)
+		err = con_check.Select("kode_barang_request").Where("kode_request_barang_kasir=?", data).Limit(1).Scan(&kode_barang)
 
 		if err.Error != nil {
 			res.Status = http.StatusNotFound
@@ -361,7 +363,9 @@ func Update_Status_Request_Barang_Kasir(Request request_kasir.Update_Status_Requ
 
 			var arr_barang []response_kasir.Read_Barang_Request_Kasir_Response
 
-			err = con.Table("barang_request_barang_kasir").Select("barang_request_barang_kasir.kode_barang_kasir", "barang_request_barang_kasir.jumlah", "jumlah_pengali").Joins("JOIN barang_kasir bk ON bk.kode_barang_kasir = barang_request_barang_kasir.kode_barang_kasir").Where("kode_request_barang_kasir = ?", Request_kode.Kode_request_barang_kasir).Scan(arr_barang)
+			fmt.Println(Request_kode.Kode_request_barang_kasir)
+
+			err = con.Table("barang_request_barang_kasir").Select("barang_request_barang_kasir.kode_barang_kasir", "barang_request_barang_kasir.jumlah", "jumlah_pengali").Joins("JOIN barang_kasir bk ON bk.kode_barang_kasir = barang_request_barang_kasir.kode_barang_kasir").Where("kode_request_barang_kasir = ?", Request_kode.Kode_request_barang_kasir).Scan(&arr_barang)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound
@@ -372,7 +376,7 @@ func Update_Status_Request_Barang_Kasir(Request request_kasir.Update_Status_Requ
 
 			for i := 0; i < len(arr_barang); i++ {
 				var jumlah request_kasir.Update_Jumlah_Barang_Kasir
-				jumlah.Jumlah = arr_barang[i].Jumlah * arr_barang[i].Jumlah_pengali
+				jumlah.Jumlah = math.Round(arr_barang[i].Jumlah*arr_barang[i].Jumlah_pengali*100) / 100
 
 				err = con.Table("barang_kasir").Where("kode_barang_kasir = ?", arr_barang[i].Kode_barang_kasir).Select("jumlah").Updates(&jumlah)
 
@@ -403,5 +407,102 @@ func Update_Status_Request_Barang_Kasir(Request request_kasir.Update_Status_Requ
 		res.Message = "Tidah dapat di edit diakrenakan sudah sukses"
 		res.Data = Request
 	}
+	return res, nil
+}
+
+func Dropdown_status(Request request_kasir.Dropdown_Status_Kasir_Request) (response_kasir.Response, error) {
+	var res response_kasir.Response
+	var data response_kasir.Status_Request_Barang_Kasir_Response
+	var arr_data []response_kasir.Status_Request_Barang_Kasir_Response
+
+	if strings.HasPrefix(Request.Kode, "KG") {
+
+		con := db.CreateConGorm()
+		status := -1
+
+		err := con.Table("request_barang_kasir").Select("status").Where("kode_request_barang_kasir = ?", Request.Kode_request_barang_kasir).Scan(&status)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		if status == 0 {
+			data.Status = 1
+			data.Nama_status = "Diproses"
+
+			arr_data = append(arr_data, data)
+
+			data.Status = 4
+			data.Nama_status = "Ditolak / Cancel"
+
+			arr_data = append(arr_data, data)
+		} else if status == 1 {
+			data.Status = 2
+			data.Nama_status = "Dikirim"
+
+			arr_data = append(arr_data, data)
+
+			data.Status = 4
+			data.Nama_status = "Ditolak / Cancel"
+
+			arr_data = append(arr_data, data)
+		} else {
+			arr_data = append(arr_data, data)
+
+			res.Status = http.StatusNotFound
+			res.Message = "Tidak dapat mengubah status"
+			res.Data = Request
+
+			return res, nil
+		}
+
+	} else if strings.HasPrefix(Request.Kode, "KS") {
+
+		con := db.CreateConGorm()
+		status := -1
+
+		err := con.Table("request_barang_kasir").Select("status").Where("kode_request_barang_kasir = ?", Request.Kode_request_barang_kasir).Scan(&status)
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		}
+
+		if status == 0 {
+			data.Status = 4
+			data.Nama_status = "Ditolak / Cancel"
+
+			arr_data = append(arr_data, data)
+		} else if status == 2 {
+			data.Status = 3
+			data.Nama_status = "Sukses"
+
+			arr_data = append(arr_data, data)
+		} else if status == 4 {
+			data.Status = 0
+			data.Nama_status = "Pending"
+
+			arr_data = append(arr_data, data)
+		} else {
+			arr_data = append(arr_data, data)
+
+			res.Status = http.StatusNotFound
+			res.Message = "Tidak dapat mengubah status"
+			res.Data = Request
+
+			return res, nil
+		}
+
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Suksess"
+	res.Data = arr_data
+
 	return res, nil
 }

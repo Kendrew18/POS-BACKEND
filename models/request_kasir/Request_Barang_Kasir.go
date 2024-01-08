@@ -55,3 +55,8 @@ type Update_Status_Request_Barang_Kasir struct {
 type Update_Jumlah_Barang_Kasir struct {
 	Jumlah float64 `json:"jumlah"`
 }
+
+type Dropdown_Status_Kasir_Request struct {
+	Kode                      string `json:"kode"`
+	Kode_request_barang_kasir string `json:"kode_request_barang_kasir"`
+}

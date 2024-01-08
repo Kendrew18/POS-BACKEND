@@ -18,6 +18,7 @@ import (
 	"POS-BACKEND/controllers/kasir/gudang_kasir"
 	"POS-BACKEND/controllers/kasir/jenis_pembayaran"
 	"POS-BACKEND/controllers/kasir/notifikasi"
+	"POS-BACKEND/controllers/kasir/request_barang_kasir"
 	"POS-BACKEND/controllers/kasir/satuan_kasir"
 	"POS-BACKEND/controllers/kasir/user_management"
 	"net/http"
@@ -154,6 +155,15 @@ func Init() *echo.Echo {
 	NF := e.Group("/NF")
 	NF.PUT("/notifikasi", notifikasi.UpdateJumlahMinimal)
 	NF.GET("/notifikasi", notifikasi.ReadNotifikasi)
+
+	//Request Kasir
+	RKS := e.Group("/RKS")
+	RKS.POST("/request-kasir", request_barang_kasir.InputRequestBarangKasir)
+	RKS.GET("/request-kasir", request_barang_kasir.ReadRequestBarangKasir)
+	RKS.PUT("/request-kasir", request_barang_kasir.UpdateRequestBarangKasir)
+	RKS.DELETE("/request-kasir", request_barang_kasir.DeleteRequestBarangKasir)
+	RKS.PUT("/update-status", request_barang_kasir.UpdateStatusRequestBarangKasir)
+	RKS.GET("/dropdown-status", request_barang_kasir.Dropdownstatus)
 
 	return e
 }
