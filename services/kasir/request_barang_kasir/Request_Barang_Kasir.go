@@ -33,11 +33,11 @@ func Input_Request_Barang_Kasir(Request request_kasir.Input_Request_Barang_Kasir
 		return res, err.Error
 	}
 
-	//0 = pending
-	//1 = proses
-	//2 = dikirim
-	//3 = sukses
-	//4 = ditolak
+	//0 = pending (Kasir)
+	//1 = proses -> tidak bisa di edit (Gudang)
+	//2 = dikirim -> pengurangan stock gudang (Gudang)
+	//3 = sukses -> sudah di terima (Kasir)
+	//4 = ditolak -> (dua-duanya)
 
 	date, _ := time.Parse("02-01-2006", Request.Tanggal_request)
 	Request.Tanggal_request = date.Format("2006-01-02")
