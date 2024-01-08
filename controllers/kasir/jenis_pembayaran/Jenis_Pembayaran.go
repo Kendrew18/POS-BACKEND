@@ -11,7 +11,7 @@ import (
 func InputJenisPembayaran(c echo.Context) error {
 
 	var Request request_kasir.Input_Jenis_Pembayaran_Request
-	Request.Nama_jenis_pembayaran = c.FormValue("nama_bentuk_retur")
+	Request.Nama_jenis_pembayaran = c.FormValue("nama_jenis_pembayaran")
 	Request.Kode_kasir = c.FormValue("kode_kasir")
 
 	result, err := jenis_pembayaran.Input_Jenis_Pembayaran(Request)

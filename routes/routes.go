@@ -143,6 +143,7 @@ func Init() *echo.Echo {
 	GK := e.Group("/GK")
 	GK.GET("/gudang-kasir", gudang_kasir.ReadGudangKasir)
 	GK.POST("/gudang-kasir", gudang_kasir.InputGudangKasir)
+	GK.GET("/dropdown-gudang", gudang_kasir.DropdownGudang)
 
 	//Barang_Kasir
 	BK := e.Group("/BK")

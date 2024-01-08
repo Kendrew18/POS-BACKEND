@@ -6,3 +6,8 @@ type Read_Gudang_Kasir_Response struct {
 	Nama_gudang       string `json:"nama_gudang"`
 	Alamat            string `json:"alamat"`
 }
+
+type Dropdown_Gudang_Response struct {
+	Kode_gudang string `json:"kode_gudang"`
+	Nama_gudang string `json:"nama_gudang"`
+}

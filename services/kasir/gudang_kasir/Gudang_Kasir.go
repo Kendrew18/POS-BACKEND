@@ -75,3 +75,33 @@ func Read_Gudang_Kasir(Request request_kasir.Read_Gudang_Kasir_Request) (respons
 
 	return res, nil
 }
+
+func Dropdown_Gudang() (response_kasir.Response, error) {
+
+	var res response_kasir.Response
+	var data []response_kasir.Dropdown_Gudang_Response
+
+	con := db.CreateConGorm().Table("gudang")
+
+	err := con.Select("kode_gudang", "nama_gudang").Order("gudang.co ASC").Scan(&data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	if data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = data
+	}
+
+	return res, nil
+}

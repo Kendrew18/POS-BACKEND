@@ -39,3 +39,14 @@ func ReadGudangKasir(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DropdownGudang(c echo.Context) error {
+
+	result, err := gudang_kasir.Dropdown_Gudang()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}
