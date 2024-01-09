@@ -18,9 +18,11 @@ import (
 	"POS-BACKEND/controllers/kasir/bentuk_retur"
 	"POS-BACKEND/controllers/kasir/gudang_kasir"
 	"POS-BACKEND/controllers/kasir/jenis_pembayaran"
+	"POS-BACKEND/controllers/kasir/kasir"
 	"POS-BACKEND/controllers/kasir/notifikasi"
 	"POS-BACKEND/controllers/kasir/request_barang_kasir"
 	"POS-BACKEND/controllers/kasir/satuan_kasir"
+	"POS-BACKEND/controllers/kasir/stock_kasir"
 	"POS-BACKEND/controllers/kasir/user_management"
 	"net/http"
 
@@ -172,6 +174,15 @@ func Init() *echo.Echo {
 	RKS.DELETE("/request-kasir", request_barang_kasir.DeleteRequestBarangKasir)
 	RKS.PUT("/update-status", request_barang_kasir.UpdateStatusRequestBarangKasir)
 	RKS.GET("/dropdown-status", request_barang_kasir.Dropdownstatus)
+
+	//Stock Kasir
+	STK := e.Group("/STK")
+	STK.GET("/stock-kasir", stock_kasir.ReadStockKasir)
+	STK.PUT("/update-harga", stock_kasir.UpdateHargaStockKasir)
+
+	//Menu Kasir
+	KSR := e.Group("/KSR")
+	KSR.GET("/read-menu", kasir.ReadMenuKasir)
 
 	return e
 }
