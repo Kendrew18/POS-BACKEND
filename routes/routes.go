@@ -6,6 +6,7 @@ import (
 	"POS-BACKEND/controllers/gudang/kartu_stock"
 	"POS-BACKEND/controllers/gudang/pre_order"
 	"POS-BACKEND/controllers/gudang/refund"
+	"POS-BACKEND/controllers/gudang/request_barang_gudang"
 	"POS-BACKEND/controllers/gudang/satuan_barang"
 	"POS-BACKEND/controllers/gudang/stock"
 	"POS-BACKEND/controllers/gudang/stock_keluar"
@@ -116,6 +117,11 @@ func Init() *echo.Echo {
 	//Kartu Stock
 	KS := e.Group("/KS")
 	KS.GET("/kartu-stock", kartu_stock.ReadJenisBarang)
+
+	//Request-Stock
+	RST := e.Group("/RST")
+	RST.GET("/request-kasir-stock", request_barang_gudang.ReadRequestBarangKasirStock)
+	RST.PUT("/request-kasir-stock", request_barang_gudang.UpdateStatusRequestBarangKasir)
 
 	//KASIR
 
