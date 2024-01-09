@@ -113,7 +113,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, tanggal_request, nama_gudang, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
+	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, tanggal_request, gudang.kode_gudang,nama_gudang, um.kode_store, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
 
 	if Request_filter.Kode_store != "" {
 		statement += " && request_barang_kasir.kode_store = '" + Request_filter.Kode_store + "'"
@@ -143,7 +143,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	for rows.Next() {
 
-		err = rows.Scan(&data.Kode_request_barang_kasir, &data.Tanggal_request, &data.Nama_gudang, &data.Nama_store, &data.Status)
+		err = rows.Scan(&data.Kode_request_barang_kasir, &data.Tanggal_request, &data.Kode_gudang, &data.Nama_gudang, &data.Kode_store, &data.Nama_store, &data.Status)
 
 		if err != nil {
 			res.Status = http.StatusNotFound
@@ -155,7 +155,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 		con_detail := db.CreateConGorm().Table("barang_request_barang_kasir")
 		var detail_data []response_kasir.Read_Barang_Request_Barang_Kasir_Response
 
-		err = con_detail.Select("kode_barang_request", "nama_barang_kasir", "barang_request_barang_kasir.jumlah").Joins("join barang_kasir bk on barang_request_barang_kasir.kode_barang_kasir = bk.kode_barang_kasir").Where("kode_request_barang_kasir = ?", data.Kode_request_barang_kasir).Scan(&detail_data).Error
+		err = con_detail.Select("kode_barang_request", "barang_request_barang_kasir.kode_barang_kasir", "nama_barang_kasir", "kode_stock_gudang", "stk.nama_barang", "barang_request_barang_kasir.jumlah").Joins("join barang_kasir bk on barang_request_barang_kasir.kode_barang_kasir = bk.kode_barang_kasir").Joins("join stock stk on barang_request_barang_kasir.kode_stock_gudang = stk.kode_stock").Where("kode_request_barang_kasir = ?", data.Kode_request_barang_kasir).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound
