@@ -9,6 +9,7 @@ type Read_Pembayaran_Response struct {
 	Nama_store            string                            `json:"nama_store"`
 	Jumlah_total          float64                           `json:"jumlah_total"`
 	Total_harga           int64                             `json:"total_harga"`
+	Diskon                int64                             `json:"diskon"`
 	Detail_pembayaran     []Read_Detail_Pembayaran_Response `json:"detail_pembayaran"`
 }
 

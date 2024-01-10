@@ -50,9 +50,8 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 
 	Request.Kode_nota = Request.Kode_nota + strconv.Itoa(co_pembayaran)
 	Request.Jumlah_total = 0.0
-	Request.Harga_total = 0
 
-	err = con.Table("pembayaran").Select("co", "kode_pembayaran", "kode_nota", "tanggal", "kode_jenis_pembayaran", "kode_store", "jumlah_total", "total_harga", "kode_kasir").Create(&Request)
+	err = con.Table("pembayaran").Select("co", "kode_pembayaran", "kode_nota", "tanggal", "kode_jenis_pembayaran", "kode_store", "jumlah_total", "total_harga", "kode_kasir", "diskon").Create(&Request)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -62,7 +61,6 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 	}
 
 	tot_jumlah := 0.0
-	tot_harga := int64(0)
 
 	kode_stock := tools.String_Separator_To_String(Request_barang.Kode_barang_kasir)
 	Jumlah := tools.String_Separator_To_float64(Request_barang.Jumlah_barang)
@@ -116,7 +114,6 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 		}
 
 		tot_jumlah = tot_jumlah + Jumlah[i]
-		tot_harga = tot_harga + harga[i]
 
 		stock_lama := 0.0
 
@@ -146,9 +143,8 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 	var req request_kasir.Update_Jumlah_Dan_Harga_Request
 
 	req.Jumlah_total = tot_jumlah
-	req.Total_harga = tot_harga
 
-	err = con.Table("pembayaran").Where("kode_pembayaran = ?", Request.Kode_pembayaran).Select("jumlah_total", "total_harga").Updates(&req)
+	err = con.Table("pembayaran").Where("kode_pembayaran = ?", Request.Kode_pembayaran).Select("jumlah_total").Updates(&req)
 
 	if err.Error != nil {
 		res.Status = http.StatusNotFound
@@ -186,8 +182,9 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 		return res, err.Error
 	}
 
-	pembayaran.Total_harga = tot_harga
 	pembayaran.Jumlah_total = tot_jumlah
+	pembayaran.Total_harga = Request.Total_harga
+	pembayaran.Diskon = Request.Diskon
 
 	var detail_pembayaran []response_kasir.Read_Detail_Pembayaran_Response
 
@@ -219,7 +216,7 @@ func Read_Pembayaran(Request request_kasir.Read_Pembayaran_Request, Request_filt
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT kode_pembayaran, kode_nota, DATE_FORMAT(tanggal, '%d-%m-%Y'), pembayaran.kode_jenis_pembayaran, nama_jenis_pembayaran , nama_store, total_harga, jumlah_total  FROM pembayaran join user_management um on um.kode_store = pembayaran.kode_store join jenis_pembayaran jp on jp.kode_jenis_pembayaran = pembayaran.kode_jenis_pembayaran WHERE pembayaran.kode_kasir = '" + Request.Kode_kasir + "'"
+	statement := "SELECT kode_pembayaran, kode_nota, DATE_FORMAT(tanggal, '%d-%m-%Y'), pembayaran.kode_jenis_pembayaran, nama_jenis_pembayaran , nama_store, total_harga, jumlah_total, diskon FROM pembayaran join user_management um on um.kode_store = pembayaran.kode_store join jenis_pembayaran jp on jp.kode_jenis_pembayaran = pembayaran.kode_jenis_pembayaran WHERE pembayaran.kode_kasir = '" + Request.Kode_kasir + "'"
 
 	if Request_filter.Tanggal != "" {
 
@@ -251,7 +248,7 @@ func Read_Pembayaran(Request request_kasir.Read_Pembayaran_Request, Request_filt
 
 	for rows.Next() {
 
-		err = rows.Scan(&data.Kode_pembayaran, &data.Kode_nota, &data.Tanggal, &data.Kode_jenis_pembayaran, &data.Nama_jenis_pambayaran, &data.Nama_store, &data.Total_harga, &data.Jumlah_total)
+		err = rows.Scan(&data.Kode_pembayaran, &data.Kode_nota, &data.Tanggal, &data.Kode_jenis_pembayaran, &data.Nama_jenis_pambayaran, &data.Nama_store, &data.Total_harga, &data.Jumlah_total, &data.Diskon)
 
 		if err != nil {
 			res.Status = http.StatusNotFound

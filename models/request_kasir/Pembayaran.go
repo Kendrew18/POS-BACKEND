@@ -8,7 +8,8 @@ type Input_Pembayaran_Request struct {
 	Kode_jenis_pembayaran string  `json:"kode_jenis_pembayaran"`
 	Kode_store            string  `json:"kode_store"`
 	Jumlah_total          float64 `json:"jumlah_total"`
-	Harga_total           int64   `json:"harga_total"`
+	Total_harga           int64   `json:"total_harga"`
+	Diskon                int64   `json:"diskon"`
 	Kode_kasir            string  `json:"kode_kasir"`
 }
 
@@ -32,7 +33,6 @@ type Barang_Input_Pembayaran_Request_V2 struct {
 
 type Update_Jumlah_Dan_Harga_Request struct {
 	Jumlah_total float64 `json:"jumlah_total"`
-	Total_harga  int64   `json:"total_harga"`
 }
 
 type Read_Pembayaran_Request struct {

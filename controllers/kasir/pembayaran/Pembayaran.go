@@ -4,6 +4,7 @@ import (
 	"POS-BACKEND/models/request_kasir"
 	"POS-BACKEND/services/kasir/pembayaran"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,6 +17,8 @@ func InputPembayaran(c echo.Context) error {
 	Request.Kode_store = c.FormValue("kode_store")
 	Request.Kode_jenis_pembayaran = c.FormValue("kode_jenis_pembayaran")
 	Request.Tanggal = c.FormValue("tanggal")
+	Request.Total_harga, _ = strconv.ParseInt(c.FormValue("total_harga"), 10, 64)
+	Request.Diskon, _ = strconv.ParseInt(c.FormValue("diskon"), 10, 64)
 
 	Request_barang.Harga = c.FormValue("harga")
 	Request_barang.Jumlah_barang = c.FormValue("jumlah_barang")
