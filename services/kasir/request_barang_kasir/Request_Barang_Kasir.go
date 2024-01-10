@@ -113,7 +113,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, tanggal_request, gudang.kode_gudang,nama_gudang, um.kode_store, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
+	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, DATE_FORMAT(tanggal_request, '%d-%m-%Y'), gudang.kode_gudang,nama_gudang, um.kode_store, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
 
 	if Request_filter.Kode_store != "" {
 		statement += " && request_barang_kasir.kode_store = '" + Request_filter.Kode_store + "'"

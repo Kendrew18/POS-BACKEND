@@ -20,6 +20,7 @@ import (
 	"POS-BACKEND/controllers/kasir/jenis_pembayaran"
 	"POS-BACKEND/controllers/kasir/kasir"
 	"POS-BACKEND/controllers/kasir/notifikasi"
+	"POS-BACKEND/controllers/kasir/pembayaran"
 	"POS-BACKEND/controllers/kasir/request_barang_kasir"
 	"POS-BACKEND/controllers/kasir/satuan_kasir"
 	"POS-BACKEND/controllers/kasir/stock_kasir"
@@ -183,6 +184,11 @@ func Init() *echo.Echo {
 	//Menu Kasir
 	KSR := e.Group("/KSR")
 	KSR.GET("/read-menu", kasir.ReadMenuKasir)
+
+	//Pembayaran
+	PMB := e.Group("/PMB")
+	PMB.POST("/pembayaran", pembayaran.InputPembayaran)
+	PMB.GET("/pembayaran", pembayaran.ReadPembayaran)
 
 	return e
 }
