@@ -75,3 +75,47 @@ func Read_Bentuk_Retur(Request request_kasir.Read_Barang_Kasir_Request) (respons
 
 	return res, nil
 }
+
+func Delete_Bentuk_Retur(Request request_kasir.Delete_Bentuk_Retur_Request) (response_kasir.Response, error) {
+
+	var res response_kasir.Response
+
+	var bentuk_retur []string
+
+	con_stock := db.CreateConGorm().Table("retur_customer")
+
+	err := con_stock.Select("kode_bentuk_retur").Where("kode_bentuk_retur =?", Request.Kode_bentuk_retur).Scan(&bentuk_retur).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if bentuk_retur == nil {
+		con := db.CreateConGorm().Table("bentuk_retur")
+
+		err := con.Where("kode_bentuk_retur=?", Request.Kode_bentuk_retur).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}

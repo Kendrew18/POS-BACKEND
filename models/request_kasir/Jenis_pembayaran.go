@@ -10,3 +10,7 @@ type Input_Jenis_Pembayaran_Request struct {
 type Read_Jenis_Pembayaran_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 }
+
+type Delete_Jenis_Pembayaran_Request struct {
+	Kode_jenis_pembayaran string `json:"kode_jenis_pembayaran"`
+}

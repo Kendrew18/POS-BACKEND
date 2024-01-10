@@ -10,3 +10,7 @@ type Input_Bentuk_Retur_Request struct {
 type Read_Bentuk_Retur_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 }
+
+type Delete_Bentuk_Retur_Request struct {
+	Kode_bentuk_retur string `json:"kode_bentuk_retur"`
+}

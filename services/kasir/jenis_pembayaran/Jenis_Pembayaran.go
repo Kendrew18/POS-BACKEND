@@ -75,3 +75,47 @@ func Read_Jenis_Pembayaran(Request request_kasir.Read_Jenis_Pembayaran_Request) 
 
 	return res, nil
 }
+
+func Delete_Jenis_Pembayaran(Request request_kasir.Delete_Jenis_Pembayaran_Request) (response_kasir.Response, error) {
+
+	var res response_kasir.Response
+
+	var jenis_pembayaran []string
+
+	con_stock := db.CreateConGorm().Table("pembayaran")
+
+	err := con_stock.Select("kode_jenis_pembayaran").Where("kode_jenis_pembayaran =?", Request.Kode_jenis_pembayaran).Scan(&jenis_pembayaran).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if jenis_pembayaran == nil {
+		con := db.CreateConGorm().Table("jenis_pembayaran")
+
+		err := con.Where("kode_jenis_pembayaran=?", Request.Kode_jenis_pembayaran).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}

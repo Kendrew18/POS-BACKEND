@@ -22,6 +22,7 @@ import (
 	"POS-BACKEND/controllers/kasir/notifikasi"
 	"POS-BACKEND/controllers/kasir/pembayaran"
 	"POS-BACKEND/controllers/kasir/request_barang_kasir"
+	"POS-BACKEND/controllers/kasir/retur_customer"
 	"POS-BACKEND/controllers/kasir/satuan_kasir"
 	"POS-BACKEND/controllers/kasir/stock_kasir"
 	"POS-BACKEND/controllers/kasir/user_management"
@@ -189,6 +190,16 @@ func Init() *echo.Echo {
 	PMB := e.Group("/PMB")
 	PMB.POST("/pembayaran", pembayaran.InputPembayaran)
 	PMB.GET("/pembayaran", pembayaran.ReadPembayaran)
+
+	//Retur Customer
+	RC := e.Group("/RC")
+	RC.POST("/retur-customer", retur_customer.InputReturCustomer)
+	RC.GET("/retur-customer", retur_customer.ReadReturCustomer)
+	RC.PUT("/retur-customer", retur_customer.UpdateReturCustomer)
+	RC.DELETE("/retur-customer", retur_customer.DeleteRequestBarangKasir)
+	RC.PUT("/update-status-retur", retur_customer.UpdateStatusRequestBarangKasir)
+	RC.GET("/dropdown-kode-nota", retur_customer.DropdownKodeNotaReturCustomer)
+	RC.GET("/dropdown-barang", retur_customer.DropdownBarangKasirRetur)
 
 	return e
 }
