@@ -23,7 +23,7 @@ func Read_Request_Barang_Kasir_Stock(Request request.Read_Request_Barang_Kasir_S
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, DATE_FORMAT(tanggal_request, '%d-%m-%Y'), um.kode_store, nama_store, status, SUM(jumlah) AS jumlah FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang JOIN toko tk on tk.kode_store = request_barang_kasir.kode_store JOIN barang_request_barang_kasir brbk on brbk.kode_request_barang_kasir = request_barang_kasir.kode_request_barang_kasir WHERE request_barang_kasir.kode_gudang = '" + Request.Kode_gudang + "'"
+	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, DATE_FORMAT(tanggal_request, '%d-%m-%Y'), um.kode_store, nama_store, status, SUM(jumlah) AS jumlah FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang_kasir gk on gk.kode_gudang_kasir = request_barang_kasir.kode_gudang_kasir JOIN gudang on gudang.kode_gudang = gk.kode_gudang JOIN toko tk on tk.kode_store = request_barang_kasir.kode_store JOIN barang_request_barang_kasir brbk on brbk.kode_request_barang_kasir = request_barang_kasir.kode_request_barang_kasir WHERE gk.kode_gudang = '" + Request.Kode_gudang + "'"
 
 	if Request_filter.Tanggal_1 != "" {
 

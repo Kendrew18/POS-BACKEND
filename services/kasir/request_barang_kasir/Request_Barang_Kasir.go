@@ -45,7 +45,7 @@ func Input_Request_Barang_Kasir(Request request_kasir.Input_Request_Barang_Kasir
 	Request.Tanggal_request = date.Format("2006-01-02")
 	Request.Status = 0
 
-	err = con.Select("co", "kode_request_barang_kasir", "tanggal_request", "kode_gudang", "kode_store", "kode_kasir", "status").Create(&Request)
+	err = con.Select("co", "kode_request_barang_kasir", "tanggal_request", "kode_gudang_kasir", "kode_store", "kode_kasir", "status").Create(&Request)
 
 	kode_stock := tools.String_Separator_To_String(Request_Barang.Kode_stock_gudang)
 	Jumlah := tools.String_Separator_To_float64(Request_Barang.Jumlah)
@@ -113,7 +113,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	con := db.CreateConGorm()
 
-	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, DATE_FORMAT(tanggal_request, '%d-%m-%Y'), gudang.kode_gudang,nama_gudang, um.kode_store, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang on gudang.kode_gudang = request_barang_kasir.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
+	statement := "SELECT request_barang_kasir.kode_request_barang_kasir, DATE_FORMAT(tanggal_request, '%d-%m-%Y'), request_barang_kasir.kode_gudang_kasir, nama_gudang, um.kode_store, nama_store, status FROM request_barang_kasir JOIN user_management um on um.kode_store = request_barang_kasir.kode_store JOIN gudang_kasir GK on GK.kode_gudang_kasir = request_barang_kasir.kode_gudang_kasir JOIN gudang on gudang.kode_gudang = GK.kode_gudang WHERE request_barang_kasir.kode_kasir = '" + Request.Kode_kasir + "'"
 
 	if Request_filter.Kode_store != "" {
 		statement += " && request_barang_kasir.kode_store = '" + Request_filter.Kode_store + "'"
@@ -143,7 +143,7 @@ func Read_Request_Barang_Kasir(Request request_kasir.Read_Request_Barang_Kasir_R
 
 	for rows.Next() {
 
-		err = rows.Scan(&data.Kode_request_barang_kasir, &data.Tanggal_request, &data.Kode_gudang, &data.Nama_gudang, &data.Kode_store, &data.Nama_store, &data.Status)
+		err = rows.Scan(&data.Kode_request_barang_kasir, &data.Tanggal_request, &data.Kode_gudang_kasir, &data.Nama_gudang, &data.Kode_store, &data.Nama_store, &data.Status)
 
 		if err != nil {
 			res.Status = http.StatusNotFound

@@ -93,7 +93,7 @@ func Delete_Bentuk_Retur(Request request_kasir.Delete_Bentuk_Retur_Request) (res
 		return res, err
 	}
 
-	if bentuk_retur == nil {
+	if bentuk_retur == nil || (Request.Kode_bentuk_retur != "BR-1" && Request.Kode_bentuk_retur != "BR-2") {
 		con := db.CreateConGorm().Table("bentuk_retur")
 
 		err := con.Where("kode_bentuk_retur=?", Request.Kode_bentuk_retur).Delete("")

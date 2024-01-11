@@ -437,7 +437,7 @@ func Dropdown_Kode_Nota_Retur_Customer(Request request_kasir.Read_Dropdown_Kode_
 
 	con := db.CreateConGorm().Table("pembayaran")
 
-	err := con.Select("kode_nota", "nama_store").Joins("join user_management um on um.kode_store = pembayaran.kode_store").Where("pembayaran.kode_kasir = ? AND tanggal = ?", Request.Kode_kasir, Request.Tanggal).Order("pembayaran.co ASC").Scan(&arr_data).Error
+	err := con.Select("kode_nota", "pembayaran.kode_store", "nama_store").Joins("join user_management um on um.kode_store = pembayaran.kode_store").Where("pembayaran.kode_kasir = ? AND tanggal = ?", Request.Kode_kasir, Request.Tanggal).Order("pembayaran.co ASC").Scan(&arr_data).Error
 
 	if err != nil {
 		res.Status = http.StatusNotFound

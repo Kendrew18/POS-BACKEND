@@ -11,3 +11,7 @@ type Input_Gudang_Kasir_Request struct {
 type Read_Gudang_Kasir_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 }
+
+type Delete_Gudang_Kasir_Request struct {
+	Kode_gudang_kasir string `json:"kode_gudang_kasir"`
+}

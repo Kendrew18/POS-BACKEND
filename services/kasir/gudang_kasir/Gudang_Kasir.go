@@ -135,3 +135,47 @@ func Dropdown_Gudang_Kasir(Request request_kasir.Read_Gudang_Kasir_Request) (res
 
 	return res, nil
 }
+
+func Delete_Gudang_Kasir(Request request_kasir.Delete_Gudang_Kasir_Request) (response_kasir.Response, error) {
+
+	var res response_kasir.Response
+
+	var bentuk_retur []string
+
+	con_stock := db.CreateConGorm().Table("barang_request_barang_kasir")
+
+	err := con_stock.Select("kode_gudang_kasir").Where("kode_gudang_kasir = ?", Request.Kode_gudang_kasir).Scan(&bentuk_retur).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if bentuk_retur == nil {
+		con := db.CreateConGorm().Table("gudang_kasir")
+
+		err := con.Where("kode_gudang_kasir=?", Request.Kode_gudang_kasir).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}

@@ -22,5 +22,6 @@ type Detail_Retur_Customer_Response struct {
 
 type Read_Dropdown_Kode_Nota_Request struct {
 	Kode_nota  string `json:"kode_nota"`
+	Kode_store string `json:"kode_store"`
 	Nama_store string `json:"nama_store"`
 }
