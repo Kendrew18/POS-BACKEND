@@ -17,7 +17,7 @@ type Detail_Retur_Customer_Response struct {
 	Kode_barang_kasir          string  `json:"kode_barang_kasir"`
 	Nama_barang_kasir          string  `json:"nama_barang_kasir"`
 	Jumlah                     float64 `json:"jumlah"`
-	Keterangan                 string  `json:"kode_store"`
+	Keterangan                 string  `json:"keterangan"`
 }
 
 type Read_Dropdown_Kode_Nota_Request struct {
