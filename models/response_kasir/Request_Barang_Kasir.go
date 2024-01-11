@@ -4,6 +4,7 @@ type Read_Request_Barang_Kasir_Response struct {
 	Kode_request_barang_kasir string                                      `json:"kode_request_barang_kasir"`
 	Tanggal_request           string                                      `json:"tanggal"`
 	Kode_gudang_kasir         string                                      `json:"kode_gudang_kasir"`
+	Kode_gudang               string                                      `json:"kode_gudang"`
 	Nama_gudang               string                                      `json:"nama_gudang"`
 	Kode_store                string                                      `json:"kode_store"`
 	Nama_store                string                                      `json:"nama_store"`
