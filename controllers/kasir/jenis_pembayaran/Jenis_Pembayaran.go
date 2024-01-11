@@ -37,3 +37,17 @@ func ReadJenisPembayaran(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DeleteJenisPembayaran(c echo.Context) error {
+	var Request request_kasir.Delete_Jenis_Pembayaran_Request
+	Request.Kode_jenis_pembayaran = c.FormValue("kode_jenis_pembayaran")
+
+	result, err := jenis_pembayaran.Delete_Jenis_Pembayaran(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+
+}

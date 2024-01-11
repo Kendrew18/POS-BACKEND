@@ -39,3 +39,18 @@ func ReadBentukRetur(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DeleteBentukRetur(c echo.Context) error {
+
+	var Request request_kasir.Delete_Bentuk_Retur_Request
+	Request.Kode_bentuk_retur = c.FormValue("kode_bentuk_retur")
+
+	result, err := bentuk_retur.Delete_Bentuk_Retur(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+
+}

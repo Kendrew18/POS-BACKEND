@@ -65,3 +65,17 @@ func DropdownGudangKasir(c echo.Context) error {
 	return c.JSON(result.Status, result)
 
 }
+
+func DeleteGudangKasir(c echo.Context) error {
+	var Request request_kasir.Delete_Gudang_Kasir_Request
+	Request.Kode_gudang_kasir = c.FormValue("kode_gudang_kasir")
+
+	result, err := gudang_kasir.Delete_Gudang_Kasir(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+
+}

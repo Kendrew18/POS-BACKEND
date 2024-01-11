@@ -18,3 +18,7 @@ type Dropdown_Barang_Kasir_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 	Kode_store string `json:"kode_store"`
 }
+
+type Delete_Barang_Kasir_Request struct {
+	Kode_barang_kasir string `json:"kode_barang_kasir"`
+}

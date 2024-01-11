@@ -142,7 +142,7 @@ func Delete_Gudang_Kasir(Request request_kasir.Delete_Gudang_Kasir_Request) (res
 
 	var bentuk_retur []string
 
-	con_stock := db.CreateConGorm().Table("barang_request_barang_kasir")
+	con_stock := db.CreateConGorm().Table("request_barang_kasir")
 
 	err := con_stock.Select("kode_gudang_kasir").Where("kode_gudang_kasir = ?", Request.Kode_gudang_kasir).Scan(&bentuk_retur).Error
 

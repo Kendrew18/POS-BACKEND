@@ -10,3 +10,7 @@ type Input_User_Management_Request struct {
 type Read_User_Management_Request struct {
 	Kode_kasir string `json:"kode_kasir"`
 }
+
+type Delete_User_Management_Request struct {
+	Kode_store string `json:"kode_store"`
+}

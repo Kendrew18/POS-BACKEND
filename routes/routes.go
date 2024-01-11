@@ -139,16 +139,19 @@ func Init() *echo.Echo {
 	BR := e.Group("/BR")
 	BR.POST("/bentuk-retur", bentuk_retur.InputBentukRetur)
 	BR.GET("/bentuk-retur", bentuk_retur.ReadBentukRetur)
+	BR.DELETE("/bentuk-retur", bentuk_retur.DeleteBentukRetur)
 
 	//User_Management
 	USM := e.Group("/USM")
 	USM.POST("/user-management", user_management.InputUserManagement)
 	USM.GET("/user-management", user_management.ReadUserManagement)
+	USM.DELETE("/user-management", user_management.DeleteUserManagement)
 
 	//Jenis_Pembayaran
 	JP := e.Group("/JP")
 	JP.POST("/jenis-pembayaran", jenis_pembayaran.InputJenisPembayaran)
 	JP.GET("/jenis-pembayaran", jenis_pembayaran.ReadJenisPembayaran)
+	JP.DELETE("/jenis-pembayaran", jenis_pembayaran.DeleteJenisPembayaran)
 
 	//Gudang
 	GK := e.Group("/GK")
@@ -156,12 +159,14 @@ func Init() *echo.Echo {
 	GK.POST("/gudang-kasir", gudang_kasir.InputGudangKasir)
 	GK.GET("/dropdown-gudang", gudang_kasir.DropdownGudang)
 	GK.GET("/dropdown-gudang-kasir", gudang_kasir.DropdownGudangKasir)
+	GK.DELETE("/gudang-kasir", gudang_kasir.DeleteGudangKasir)
 
 	//Barang_Kasir
 	BK := e.Group("/BK")
 	BK.POST("/barang-kasir", barang_kasir.InputBarangKasir)
 	BK.GET("/barang-kasir", barang_kasir.ReadBarangKasir)
 	BK.GET("/dropdown-barang-kasir", barang_kasir.DropdownBarangKasir)
+	BK.DELETE("/barang-kasir", barang_kasir.DeleteBarangKasir)
 
 	//Notifikasi
 	NF := e.Group("/NF")

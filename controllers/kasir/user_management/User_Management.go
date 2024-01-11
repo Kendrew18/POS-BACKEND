@@ -35,3 +35,16 @@ func ReadUserManagement(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func DeleteUserManagement(c echo.Context) error {
+	var Request request_kasir.Delete_User_Management_Request
+	Request.Kode_store = c.FormValue("kode_store")
+
+	result, err := user_management.Delete_User_Management(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

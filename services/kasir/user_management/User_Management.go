@@ -75,3 +75,47 @@ func Read_User_Management(Request request_kasir.Read_User_Management_Request) (r
 
 	return res, nil
 }
+
+func Delete_User_Management(Request request_kasir.Delete_User_Management_Request) (response_kasir.Response, error) {
+
+	var res response_kasir.Response
+
+	var kode_store []string
+
+	con_stock := db.CreateConGorm().Table("barang_kasir")
+
+	err := con_stock.Select("kode_store").Where("kode_store =?", Request.Kode_store).Scan(&kode_store).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = Request
+		return res, err
+	}
+
+	if kode_store == nil {
+		con := db.CreateConGorm().Table("user_management")
+
+		err := con.Where("kode_store=?", Request.Kode_store).Delete("")
+
+		if err.Error != nil {
+			res.Status = http.StatusNotFound
+			res.Message = "Status Not Found"
+			res.Data = Request
+			return res, err.Error
+		} else {
+			res.Status = http.StatusOK
+			res.Message = "Suksess"
+			res.Data = map[string]int64{
+				"rows": err.RowsAffected,
+			}
+		}
+	} else {
+		res.Status = http.StatusNotFound
+		res.Message = "Erorr karena ada condition yang tidak terpenuhi"
+		res.Data = Request
+		return res, err
+	}
+
+	return res, nil
+}
