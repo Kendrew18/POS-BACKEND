@@ -7,6 +7,7 @@ import (
 	"POS-BACKEND/tools"
 	"database/sql"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -129,6 +130,8 @@ func Input_Pembayaran(Request request_kasir.Input_Pembayaran_Request, Request_ba
 		}
 
 		stock_baru := stock_lama - Jumlah[i]
+
+		stock_baru = math.Round(stock_baru*100) / 100
 
 		err = con.Table("barang_kasir").Where("kode_barang_kasir = ?", kode_stock[i]).Update("jumlah", stock_baru)
 

@@ -72,7 +72,7 @@ func Input_Request_Barang_Kasir(Request request_kasir.Input_Request_Barang_Kasir
 
 		barang_V2.Kode_request_barang_kasir = Request.Kode_request_barang_kasir
 		barang_V2.Kode_stock_gudang = kode_stock[i]
-		barang_V2.Jumlah = Jumlah[i]
+		barang_V2.Jumlah = math.Round(Jumlah[i]*100) / 100
 		barang_V2.Kode_barang_kasir = kode_barang_kasir[i]
 
 		fmt.Println(barang_V2)
@@ -375,8 +375,22 @@ func Update_Status_Request_Barang_Kasir(Request request_kasir.Update_Status_Requ
 			}
 
 			for i := 0; i < len(arr_barang); i++ {
+
+				Stock_lama := 0.0
+
+				err := con.Table("barang_kasir").Select("jumlah").Where("kode_barang_kasir = ?", arr_barang[i].Kode_barang_kasir).Scan(&Stock_lama)
+
+				if err.Error != nil {
+					res.Status = http.StatusNotFound
+					res.Message = "Status Not Found"
+					res.Data = Request
+					return res, err.Error
+				}
+
 				var jumlah request_kasir.Update_Jumlah_Barang_Kasir
 				jumlah.Jumlah = math.Round(arr_barang[i].Jumlah*arr_barang[i].Jumlah_pengali*100) / 100
+
+				jumlah.Jumlah = jumlah.Jumlah + Stock_lama
 
 				err = con.Table("barang_kasir").Where("kode_barang_kasir = ?", arr_barang[i].Kode_barang_kasir).Select("jumlah").Updates(&jumlah)
 
