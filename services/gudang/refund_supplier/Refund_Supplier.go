@@ -164,7 +164,7 @@ func Read_Refund(Request request.Read_Refund_Request, Request_filter request.Rea
 		con_detail := db.CreateConGorm().Table("barang_refund")
 		var detail_data []response.Read_Barang_Refund_Response
 
-		err = con_detail.Select("kode_barang_refund", "kode_nota", "nama_barang", "DATE_FORMAT(tanggal_stock_masuk, '%d-%m-%Y') AS tanggal_stock_masuk", "barang_refund.jumlah", "keterangan").Joins("join stock s on barang_refund.kode_stock = s.kode_stock").Where("kode_refund = ?", data.Kode_refund).Scan(&detail_data).Error
+		err = con_detail.Select("kode_barang_refund", "kode_nota", "barang_refund.kode_stock", "nama_barang", "DATE_FORMAT(tanggal_stock_masuk, '%d-%m-%Y') AS tanggal_stock_masuk", "barang_refund.jumlah", "keterangan").Joins("join stock s on barang_refund.kode_stock = s.kode_stock").Where("kode_refund = ?", data.Kode_refund).Scan(&detail_data).Error
 
 		if err != nil {
 			res.Status = http.StatusNotFound

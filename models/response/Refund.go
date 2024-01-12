@@ -13,6 +13,7 @@ type Read_Refund_Response struct {
 type Read_Barang_Refund_Response struct {
 	Kode_barang_refund  string  `json:"kode_barang_refund"`
 	Kode_nota           string  `json:"kode_nota"`
+	Kode_stock          string  `json:"kode_stock"`
 	Nama_barang         string  `json:"nama_barang"`
 	Tanggal_stock_masuk string  `json:"tanggal_stock_masuk"`
 	Jumlah              float64 `json:"jumlah"`
