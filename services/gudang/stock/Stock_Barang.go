@@ -225,9 +225,9 @@ func Read_Stock(Request request.Read_Stock_Request) (response.Response, error) {
 		con_stock_masuk := db.CreateConGorm().Table("stock_keluar_masuk")
 
 		if status == 0 {
-			err = con_stock_masuk.Select("DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock=? && stock_keluar_masuk.status=0", data.Kode_stock).Order("tanggal DESC").Scan(&data_detail).Error
+			err = con_stock_masuk.Select("DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock=? && stock_keluar_masuk.status=0 && jumlah_barang > 0", data.Kode_stock).Order("tanggal DESC").Scan(&data_detail).Error
 		} else {
-			err = con_stock_masuk.Select("DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock=? && stock_keluar_masuk.status=0", data.Kode_stock).Order("tanggal ASC").Scan(&data_detail).Error
+			err = con_stock_masuk.Select("DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal", "jumlah_barang", "harga").Joins("JOIN detail_stock bs ON bs.kode_stock_keluar_masuk = stock_keluar_masuk.kode_stock_keluar_masuk").Where("kode_stock=? && stock_keluar_masuk.status=0 && jumlah_barang > 0", data.Kode_stock).Order("tanggal ASC").Scan(&data_detail).Error
 		}
 
 		if err != nil {
@@ -272,10 +272,19 @@ func Detail_stock(Request request.Read_Detail_Stock) (response.Response, error) 
 
 	err = con_gudang.Select("status_lifo_fifo").Where("kode_gudang=?", Request.Kode_gudang).Scan(&status).Error
 
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	fmt.Println(status)
+
 	if status == 0 {
-		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, if(status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal DESC", Request.Kode_stock).Rows()
+		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, if(skm.status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal DESC", Request.Kode_stock).Rows()
 	} else {
-		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, if(status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal ASC", Request.Kode_stock).Rows()
+		rows, err = con.Raw("SELECT kode_barang_keluar_masuk, DATE_FORMAT(tanggal, '%d-%m-%Y') AS tanggal, if(skm.status=0,'Masuk','Keluar') AS keterangan, nama_barang, bs.jumlah_barang FROM stock_keluar_masuk AS skm JOIN barang_stock_keluar_masuk bs ON bs.kode_stock_keluar_masuk = skm.kode_stock_keluar_masuk JOIN stock ON bs.kode_stock=stock.kode_stock WHERE bs.kode_stock=? ORDER BY tanggal ASC", Request.Kode_stock).Rows()
 	}
 
 	defer rows.Close()
