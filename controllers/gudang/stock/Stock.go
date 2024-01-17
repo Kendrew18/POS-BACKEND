@@ -110,3 +110,17 @@ func DropdownStockKodeNota(c echo.Context) error {
 
 	return c.JSON(result.Status, result)
 }
+
+func DropdownStockSupplier(c echo.Context) error {
+	var Request request.Dropdown_Stock_Request
+
+	Request.Kode_gudang = c.FormValue("kode_gudang")
+
+	result, err := stock.Dropdown_Stock_Supplier(Request)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(result.Status, result)
+}

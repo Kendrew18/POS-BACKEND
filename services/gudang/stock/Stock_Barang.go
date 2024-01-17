@@ -371,3 +371,31 @@ func Dropdown_Stock_Kode_Nota(Request request.Dropdown_Stock_Kode_Nota_Request) 
 	}
 	return res, nil
 }
+
+func Dropdown_Stock_Supplier(Request request.Dropdown_Stock_Request) (response.Response, error) {
+	var res response.Response
+	var data []response.Dropdown_Nama_Barang_Response
+
+	con := db.CreateConGorm().Table("stock")
+
+	err := con.Select("kode_stock", "nama_barang").Where("kode_gudang = ? ", Request.Kode_gudang).Scan(&data).Error
+
+	if err != nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+		return res, err
+	}
+
+	if data == nil {
+		res.Status = http.StatusNotFound
+		res.Message = "Status Not Found"
+		res.Data = data
+
+	} else {
+		res.Status = http.StatusOK
+		res.Message = "Suksess"
+		res.Data = data
+	}
+	return res, nil
+}
