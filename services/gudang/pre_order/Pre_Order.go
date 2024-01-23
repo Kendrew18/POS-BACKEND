@@ -367,7 +367,13 @@ func Update_Status_Pre_Order(Request request.Update_Status_Pre_Order_Request, Re
 
 			var Request_Input_stock request.Input_Stock_Masuk_Request
 
-			err = con.Select("tanggal", "kode_nota", "nama_penanggung_jawab", "kode_gudang").Where("kode_pre_order = ?", Request_kode.Kode_pre_order).Scan(&Request_Input_stock)
+			err = con.Select("kode_nota", "nama_penanggung_jawab", "kode_gudang").Where("kode_pre_order = ?", Request_kode.Kode_pre_order).Scan(&Request_Input_stock)
+
+			date := time.Now()
+
+			Request_Input_stock.Tanggal = date.Format("02-01-2006")
+
+			fmt.Println(Request_Input_stock.Tanggal)
 
 			if err.Error != nil {
 				res.Status = http.StatusNotFound
